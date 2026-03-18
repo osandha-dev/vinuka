@@ -1,0 +1,4406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Euclid's Axiom 1 — Presentation</title>
+<script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Inter:wght@300;400;500;600;700&family=Cinzel:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #d4a843;
+    --gold-light: #f0d078;
+    --gold-dark: #b8860b;
+    --navy: #0a0e1a;
+    --navy-light: #141b2d;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--navy);
+    color: #e8e0d0;
+    overflow: hidden;
+    cursor: none !important;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+
+  * { cursor: none !important; }
+
+  /* ── Custom Cursor ── */
+  #custom-cursor {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 999999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s ease;
+    mix-blend-mode: normal;
+  }
+
+  #cursor-ring {
+    position: fixed;
+    top: 0;
+    left: 0;
+    pointer-events: none;
+    z-index: 999998;
+    transform: translate(-50%, -50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1.5px solid rgba(212, 168, 67, 0.45);
+    box-shadow: 0 0 10px rgba(212, 168, 67, 0.2),
+                inset 0 0 8px rgba(212, 168, 67, 0.05);
+    transition: transform 0.18s cubic-bezier(0.25, 0.46, 0.45, 0.94),
+                width 0.2s ease, height 0.2s ease,
+                border-color 0.2s ease, opacity 0.2s ease;
+  }
+
+  #cursor-ring.clicking {
+    width: 28px;
+    height: 28px;
+    border-color: rgba(240, 208, 120, 0.9);
+    box-shadow: 0 0 20px rgba(212, 168, 67, 0.6),
+                inset 0 0 12px rgba(212, 168, 67, 0.2);
+  }
+
+  #cursor-trail-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999997;
+    overflow: hidden;
+  }
+
+  .font-playfair { font-family: 'Playfair Display', serif; }
+  .font-cinzel { font-family: 'Cinzel', serif; }
+
+  #presentation {
+    position: relative;
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    will-change: opacity, transform;
+  }
+
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    z-index: 2;
+  }
+
+  .slide.active[style] {
+    pointer-events: none;
+  }
+
+  .slide-bg {
+    background: linear-gradient(160deg, #0a0e1a 0%, #0f1628 40%, #131a30 70%, #0a0e1a 100%);
+  }
+
+  /* ── Crack overlay ── */
+  #crack-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    pointer-events: none;
+    display: none;
+  }
+
+  #crack-overlay svg {
+    width: 100%;
+    height: 100%;
+  }
+
+  .crack-glow-outer {
+    fill: none;
+    stroke: rgba(184, 134, 11, 0.25);
+    stroke-width: 28;
+    stroke-linecap: round;
+    filter: blur(12px);
+  }
+
+  .crack-glow-mid {
+    fill: none;
+    stroke: rgba(212, 168, 67, 0.5);
+    stroke-width: 14;
+    stroke-linecap: round;
+    filter: blur(6px);
+  }
+
+  .crack-line {
+    fill: none;
+    stroke: var(--gold-light);
+    stroke-width: 3.5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 6px rgba(255, 230, 150, 1))
+            drop-shadow(0 0 15px rgba(240, 208, 120, 0.95))
+            drop-shadow(0 0 35px rgba(212, 168, 67, 0.7))
+            drop-shadow(0 0 60px rgba(184, 134, 11, 0.4))
+            drop-shadow(0 0 100px rgba(184, 134, 11, 0.2));
+  }
+
+  .crack-core {
+    fill: none;
+    stroke: rgba(255, 255, 245, 0.95);
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 3px white)
+            drop-shadow(0 0 8px rgba(255, 240, 200, 0.9));
+  }
+
+  .crack-branch {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 4px rgba(240, 208, 120, 0.8))
+            drop-shadow(0 0 10px rgba(212, 168, 67, 0.5));
+  }
+
+  .crack-branch-core {
+    fill: none;
+    stroke: rgba(255, 255, 240, 0.6);
+    stroke-width: 0.6;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 2px white);
+  }
+
+  .shockwave {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    border-radius: 50%;
+    border: 2px solid rgba(240, 208, 120, 0.6);
+    box-shadow: 0 0 30px rgba(212, 168, 67, 0.4),
+                inset 0 0 30px rgba(212, 168, 67, 0.1);
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 99;
+    opacity: 0;
+  }
+
+  .spark {
+    position: fixed;
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 101;
+    opacity: 0;
+  }
+
+  @keyframes screenShake {
+    0% { transform: translate(0, 0); }
+    10% { transform: translate(-4px, 3px); }
+    20% { transform: translate(5px, -4px); }
+    30% { transform: translate(-3px, 5px); }
+    40% { transform: translate(4px, -2px); }
+    50% { transform: translate(-5px, 3px); }
+    60% { transform: translate(3px, -4px); }
+    70% { transform: translate(-2px, 4px); }
+    80% { transform: translate(4px, -3px); }
+    90% { transform: translate(-3px, 2px); }
+    100% { transform: translate(0, 0); }
+  }
+
+  .screen-shake {
+    animation: screenShake 0.4s ease-out;
+  }
+
+  #flash-overlay {
+    position: fixed;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(255, 240, 200, 0.5), rgba(240, 208, 120, 0.2) 40%, transparent 70%);
+    z-index: 95;
+    pointer-events: none;
+    opacity: 0;
+  }
+
+  #impact-glow {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: 300px;
+    height: 300px;
+    transform: translate(-50%, -50%) scale(0);
+    background: radial-gradient(circle, rgba(255, 240, 200, 0.7) 0%, rgba(240, 208, 120, 0.3) 30%, transparent 70%);
+    pointer-events: none;
+    z-index: 98;
+    border-radius: 50%;
+    opacity: 0;
+  }
+
+  /* ── Title slide ── */
+  .title-main {
+    font-size: clamp(2.5rem, 7vw, 6rem);
+    font-weight: 900;
+    letter-spacing: 0.08em;
+    background: linear-gradient(135deg, #f0d078, #d4a843, #f0d078, #b8860b);
+    background-size: 200% 200%;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    animation: shimmer 4s ease-in-out infinite;
+    text-shadow: none;
+    filter: drop-shadow(0 0 30px rgba(212, 168, 67, 0.3));
+    line-height: 1.15;
+    text-align: center;
+  }
+
+  @keyframes shimmer {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+
+  .subtitle-pulse {
+    animation: pulse-subtle 2.5s ease-in-out infinite;
+  }
+
+  @keyframes pulse-subtle {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* ── Decorative elements ── */
+  .gold-line {
+    width: 120px;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .gold-line-wide {
+    width: 200px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold-light), transparent);
+  }
+
+  .axiom-box {
+    border: 2px solid var(--gold);
+    background: rgba(212, 168, 67, 0.06);
+    box-shadow: 0 0 30px rgba(212, 168, 67, 0.1), inset 0 0 30px rgba(212, 168, 67, 0.03);
+    border-radius: 12px;
+    padding: 2rem 2.5rem;
+    max-width: 800px;
+  }
+
+  /* ── Shape diagrams ── */
+  .shape-box {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 70px;
+    height: 70px;
+    border-radius: 12px;
+    font-family: 'Playfair Display', serif;
+    font-size: 1.8rem;
+    font-weight: 700;
+    transition: transform 0.3s;
+  }
+
+  .shape-a { background: linear-gradient(135deg, #e74c3c, #c0392b); color: white; }
+  .shape-b { background: linear-gradient(135deg, #3498db, #2980b9); color: white; }
+  .shape-c { background: linear-gradient(135deg, #f0d078, #d4a843); color: #1a1a2e; }
+
+  .equals-sign {
+    font-size: 2rem;
+    color: var(--gold-light);
+    font-weight: 300;
+    margin: 0 0.75rem;
+  }
+
+  /* ── Particles ── */
+  .particle {
+    position: absolute;
+    width: 3px;
+    height: 3px;
+    background: var(--gold);
+    border-radius: 50%;
+    opacity: 0;
+    animation: float-particle 6s ease-in-out infinite;
+  }
+
+  @keyframes float-particle {
+    0%, 100% { opacity: 0; transform: translateY(0) scale(0); }
+    10% { opacity: 0.8; transform: scale(1); }
+    90% { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(-100px) scale(0); }
+  }
+
+  /* ── Example cards ── */
+  .example-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(212, 168, 67, 0.2);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(4px);
+    transition: all 0.3s;
+  }
+
+  .example-card:hover {
+    border-color: rgba(212, 168, 67, 0.5);
+    background: rgba(255,255,255,0.07);
+    transform: translateY(-2px);
+  }
+
+  /* ── Quote styling ── */
+  .quote-mark {
+    font-size: 6rem;
+    line-height: 0;
+    color: var(--gold);
+    opacity: 0.3;
+    font-family: 'Playfair Display', serif;
+  }
+
+  /* ── Slide entrance animations ── */
+  .slide.active .fade-up {
+    animation: fadeUp 0.8s ease-out forwards;
+  }
+
+  .slide.active .fade-up-delay-1 { animation-delay: 0.15s; }
+  .slide.active .fade-up-delay-2 { animation-delay: 0.3s; }
+  .slide.active .fade-up-delay-3 { animation-delay: 0.45s; }
+  .slide.active .fade-up-delay-4 { animation-delay: 0.6s; }
+  .slide.active .fade-up-delay-5 { animation-delay: 0.75s; }
+
+  .fade-up {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ── Subtitle bar ── */
+  #subtitle-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 200;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem 2rem 1.5rem 2rem;
+    background: linear-gradient(to top, rgba(6, 8, 20, 0.95) 0%, rgba(10, 14, 26, 0.85) 60%, transparent 100%);
+    pointer-events: none;
+  }
+
+  #subtitle-text {
+    max-width: 900px;
+    text-align: center;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+    line-height: 1.6;
+    color: rgba(232, 224, 208, 0.95);
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 20px rgba(0, 0, 0, 0.6);
+    letter-spacing: 0.02em;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.4s ease, transform 0.4s ease;
+  }
+
+  #subtitle-text.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  #subtitle-text .highlight {
+    color: var(--gold-light);
+    font-weight: 500;
+  }
+
+  @media (max-width: 768px) {
+    #subtitle-text {
+      font-size: 0.85rem;
+      padding: 0 1rem;
+    }
+    #subtitle-bar {
+      padding: 0.75rem 1rem 1.25rem 1rem;
+    }
+  }
+
+  /* Voice-over indicator */
+  #voice-indicator {
+    position: fixed;
+    bottom: 3.5rem;
+    left: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: rgba(212, 168, 67, 0.5);
+    z-index: 50;
+    letter-spacing: 0.04em;
+    font-family: 'Inter', sans-serif;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(10, 14, 26, 0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(212, 168, 67, 0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  #voice-indicator:hover {
+    border-color: rgba(212, 168, 67, 0.4);
+    color: rgba(212, 168, 67, 0.8);
+  }
+
+  #voice-indicator.speaking {
+    border-color: rgba(212, 168, 67, 0.5);
+    color: var(--gold);
+    box-shadow: 0 0 15px rgba(212, 168, 67, 0.2);
+  }
+
+  #voice-indicator.muted {
+    color: rgba(150, 150, 150, 0.4);
+    border-color: rgba(150, 150, 150, 0.15);
+  }
+
+  .voice-waves {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    height: 14px;
+  }
+
+  .voice-wave {
+    width: 3px;
+    height: 6px;
+    background: currentColor;
+    border-radius: 2px;
+    animation: voiceWave 0.6s ease-in-out infinite;
+  }
+
+  .voice-wave:nth-child(1) { animation-delay: 0s; }
+  .voice-wave:nth-child(2) { animation-delay: 0.15s; height: 10px; }
+  .voice-wave:nth-child(3) { animation-delay: 0.3s; }
+
+  #voice-indicator:not(.speaking) .voice-wave {
+    animation: none;
+    height: 4px;
+  }
+
+  @keyframes voiceWave {
+    0%, 100% { transform: scaleY(0.5); }
+    50% { transform: scaleY(1.5); }
+  }
+
+  /* Video indicator */
+  #video-indicator {
+    position: fixed;
+    bottom: 3.5rem;
+    right: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.7rem;
+    color: rgba(212, 168, 67, 0.5);
+    z-index: 50;
+    letter-spacing: 0.04em;
+    font-family: 'Inter', sans-serif;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(10, 14, 26, 0.6);
+    backdrop-filter: blur(4px);
+    border: 1px solid rgba(212, 168, 67, 0.15);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  #video-indicator:hover {
+    border-color: rgba(212, 168, 67, 0.4);
+    color: rgba(212, 168, 67, 0.8);
+    transform: scale(1.05);
+  }
+
+  #video-indicator.has-video {
+    border-color: rgba(212, 168, 67, 0.5);
+    color: var(--gold);
+    box-shadow: 0 0 15px rgba(212, 168, 67, 0.2);
+  }
+
+  #video-indicator.no-video {
+    color: rgba(150, 150, 150, 0.3);
+    border-color: rgba(150, 150, 150, 0.1);
+  }
+
+  .video-icon {
+    font-size: 1rem;
+  }
+
+  /* ── Progress dots ── */
+  #progress-bar {
+    position: fixed;
+    bottom: 4.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    z-index: 50;
+    padding: 6px 14px;
+    border-radius: 20px;
+    background: rgba(10, 14, 26, 0.5);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(212, 168, 67, 0.1);
+  }
+
+  .progress-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(212, 168, 67, 0.2);
+    border: 1px solid rgba(212, 168, 67, 0.15);
+    transition: all 0.4s ease;
+  }
+
+  .progress-dot.active {
+    background: var(--gold);
+    box-shadow: 0 0 8px rgba(212, 168, 67, 0.5);
+    border-color: var(--gold-light);
+    transform: scale(1.25);
+  }
+
+  .progress-dot.visited {
+    background: rgba(212, 168, 67, 0.45);
+    border-color: rgba(212, 168, 67, 0.3);
+  }
+
+  /* ── Portrait image ── */
+  .portrait-frame {
+    width: 200px;
+    height: 260px;
+    border: 2px solid var(--gold);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(212, 168, 67, 0.15);
+    flex-shrink: 0;
+  }
+
+  .portrait-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    filter: sepia(30%) brightness(0.9);
+  }
+
+  /* ── Video overlay ── */
+  #videoOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 10000;
+    background: rgba(0, 0, 0, 0.92);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+  }
+
+  #videoOverlay.visible {
+    display: flex !important;
+  }
+
+  #videoOverlay .close-btn {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.85rem;
+    font-family: 'Inter', sans-serif;
+    cursor: pointer;
+    z-index: 10001;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    transition: all 0.2s;
+    letter-spacing: 0.03em;
+  }
+
+  #videoOverlay .close-btn:hover {
+    background: rgba(255, 255, 255, 0.18);
+    color: #fff;
+  }
+
+  #videoOverlay .fullscreen-hint {
+    position: absolute;
+    bottom: 1.5rem;
+    left: 50%;
+    transform: translateX(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 0.75rem;
+    font-family: 'Inter', sans-serif;
+    letter-spacing: 0.03em;
+    pointer-events: none;
+  }
+
+  #videoOverlay .video-container {
+    width: 90vw;
+    height: 80vh;
+    max-width: 1200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  #videoOverlay .video-container iframe,
+  #videoOverlay .video-container video {
+    width: 100%;
+    height: 100%;
+    border: none;
+    border-radius: 8px;
+    background: #000;
+  }
+
+  /* ── Dust & Grain Overlay ── */
+  #dust-grain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    pointer-events: none;
+    opacity: 0.045;
+    mix-blend-mode: screen;
+  }
+
+  #dust-grain-overlay::before {
+    content: '';
+    position: absolute;
+    inset: -50%;
+    width: 200%;
+    height: 200%;
+    background-image:
+      url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    background-size: 180px 180px;
+    animation: grainDrift 0.8s steps(1) infinite;
+  }
+
+  @keyframes grainDrift {
+    0%   { transform: translate(0, 0); }
+    10%  { transform: translate(-5%, -5%); }
+    20%  { transform: translate(3%, -8%); }
+    30%  { transform: translate(-8%, 2%); }
+    40%  { transform: translate(6%, 6%); }
+    50%  { transform: translate(-3%, -3%); }
+    60%  { transform: translate(7%, -6%); }
+    70%  { transform: translate(-6%, 8%); }
+    80%  { transform: translate(2%, -2%); }
+    90%  { transform: translate(-4%, 4%); }
+    100% { transform: translate(0, 0); }
+  }
+
+  /* ── Script Editor Panel ── */
+  #script-editor {
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 8, 20, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    animation: editorFadeIn 0.25s ease;
+  }
+  #script-editor.open { display: flex; }
+
+  @keyframes editorFadeIn {
+    from { opacity: 0; transform: scale(0.97); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+
+  .editor-panel {
+    width: min(820px, 94vw);
+    background: linear-gradient(160deg, #0d1124 0%, #111828 100%);
+    border: 1px solid rgba(212,168,67,0.35);
+    border-radius: 18px;
+    box-shadow: 0 0 60px rgba(212,168,67,0.12), 0 30px 80px rgba(0,0,0,0.7);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+  }
+
+  .editor-header {
+    padding: 1.1rem 1.5rem;
+    background: rgba(212,168,67,0.07);
+    border-bottom: 1px solid rgba(212,168,67,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+  }
+
+  .editor-title {
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .editor-close {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: 1px solid rgba(212,168,67,0.3);
+    background: transparent;
+    color: rgba(212,168,67,0.6);
+    font-size: 0.9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    line-height: 1;
+  }
+  .editor-close:hover {
+    background: rgba(212,168,67,0.15);
+    color: var(--gold-light);
+    border-color: var(--gold);
+  }
+
+  .editor-tabs {
+    display: flex;
+    gap: 0;
+    padding: 0.75rem 1.5rem 0;
+    background: rgba(212,168,67,0.04);
+    border-bottom: 1px solid rgba(212,168,67,0.12);
+    overflow-x: auto;
+    flex-shrink: 0;
+  }
+
+  .editor-tab {
+    padding: 0.45rem 0.9rem;
+    border-radius: 8px 8px 0 0;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 500;
+    cursor: pointer;
+    color: rgba(212,168,67,0.45);
+    border: 1px solid transparent;
+    border-bottom: none;
+    transition: all 0.2s;
+    white-space: nowrap;
+    background: transparent;
+    letter-spacing: 0.03em;
+  }
+  .editor-tab:hover {
+    color: rgba(212,168,67,0.75);
+    background: rgba(212,168,67,0.06);
+  }
+  .editor-tab.active {
+    color: var(--gold-light);
+    background: linear-gradient(160deg, #0d1124, #111828);
+    border-color: rgba(212,168,67,0.2);
+    border-bottom-color: #111828;
+    margin-bottom: -1px;
+  }
+  .editor-tab.has-script::after {
+    content: '●';
+    margin-left: 5px;
+    font-size: 0.5rem;
+    color: var(--gold);
+    vertical-align: middle;
+  }
+  .editor-tab.no-voice::after {
+    content: '○';
+    margin-left: 5px;
+    font-size: 0.5rem;
+    color: rgba(212,168,67,0.3);
+    vertical-align: middle;
+  }
+
+  .editor-body {
+    flex: 1;
+    padding: 1.25rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.85rem;
+    overflow-y: auto;
+    min-height: 0;
+  }
+
+  .editor-slide-label {
+    font-family: 'Playfair Display', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--gold-light);
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .editor-badge {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.6rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(212,168,67,0.12);
+    color: var(--gold);
+    border: 1px solid rgba(212,168,67,0.25);
+  }
+
+  .editor-textarea {
+    width: 100%;
+    min-height: 160px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(212,168,67,0.2);
+    border-radius: 10px;
+    color: #d4cfc6;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.85rem;
+    line-height: 1.7;
+    padding: 1rem 1.1rem;
+    resize: vertical;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    outline: none;
+  }
+  .editor-textarea:focus {
+    border-color: rgba(212,168,67,0.5);
+    box-shadow: 0 0 0 3px rgba(212,168,67,0.07), 0 0 20px rgba(212,168,67,0.08);
+  }
+  .editor-textarea::placeholder {
+    color: rgba(212,168,67,0.2);
+    font-style: italic;
+  }
+  .editor-textarea:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+    font-style: italic;
+  }
+
+  .editor-char-count {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.68rem;
+    color: rgba(212,168,67,0.35);
+    text-align: right;
+    margin-top: -0.5rem;
+  }
+
+  .editor-actions {
+    display: flex;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    padding: 1rem 1.5rem;
+    border-top: 1px solid rgba(212,168,67,0.12);
+    background: rgba(212,168,67,0.03);
+    flex-shrink: 0;
+  }
+
+  .editor-btn {
+    padding: 0.5rem 1.1rem;
+    border-radius: 8px;
+    font-family: 'Inter', sans-serif;
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    border: 1px solid transparent;
+    transition: all 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  .editor-btn-primary {
+    background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+    color: #0a0e1a;
+    border-color: var(--gold);
+    box-shadow: 0 0 15px rgba(212,168,67,0.2);
+  }
+  .editor-btn-primary:hover {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+    box-shadow: 0 0 25px rgba(212,168,67,0.4);
+    transform: translateY(-1px);
+  }
+
+  .editor-btn-secondary {
+    background: transparent;
+    color: rgba(212,168,67,0.7);
+    border-color: rgba(212,168,67,0.25);
+  }
+  .editor-btn-secondary:hover {
+    background: rgba(212,168,67,0.08);
+    color: var(--gold-light);
+    border-color: rgba(212,168,67,0.5);
+  }
+
+  .editor-btn-danger {
+    background: transparent;
+    color: rgba(220,80,80,0.7);
+    border-color: rgba(220,80,80,0.2);
+  }
+  .editor-btn-danger:hover {
+    background: rgba(220,80,80,0.1);
+    color: #ff8080;
+    border-color: rgba(220,80,80,0.4);
+  }
+
+  .editor-hint {
+    font-family: 'Inter', sans-serif;
+    font-size: 0.68rem;
+    color: rgba(212,168,67,0.3);
+    margin-left: auto;
+    align-self: center;
+    letter-spacing: 0.04em;
+  }
+
+  .editor-preview-bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    border-radius: 8px;
+    background: rgba(212,168,67,0.06);
+    border: 1px solid rgba(212,168,67,0.15);
+    font-family: 'Inter', sans-serif;
+    font-size: 0.72rem;
+    color: rgba(212,168,67,0.6);
+  }
+
+  .preview-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--gold);
+    animation: previewPulse 1s ease-in-out infinite;
+    display: none;
+  }
+
+  @keyframes previewPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.3); }
+  }
+
+  /* Floating dust particles */
+  .dust-mote {
+    position: fixed;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    opacity: 0;
+    background: radial-gradient(circle, rgba(212, 168, 67, 0.6) 0%, rgba(212, 168, 67, 0) 70%);
+    animation: dustFloat linear infinite;
+  }
+
+  @keyframes dustFloat {
+    0%   { opacity: 0; transform: translateY(0) translateX(0); }
+    15%  { opacity: 0.35; }
+    50%  { opacity: 0.2; transform: translateY(-35vh) translateX(15px); }
+    85%  { opacity: 0.3; }
+    100% { opacity: 0; transform: translateY(-70vh) translateX(-10px); }
+  }
+
+  /* ══════════════════════════════════════════════
+     ENHANCED VISUAL EFFECTS
+     ══════════════════════════════════════════════ */
+
+  /* ── Screen Vignette ── */
+  #vignette {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 90;
+    background: radial-gradient(ellipse at center, transparent 40%, rgba(0, 0, 0, 0.4) 100%);
+  }
+
+  /* ── Star Field Background ── */
+  #star-field {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .star {
+    position: absolute;
+    background: white;
+    border-radius: 50%;
+    animation: twinkle ease-in-out infinite;
+  }
+
+  @keyframes twinkle {
+    0%, 100% { opacity: 0.2; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.2); }
+  }
+
+  /* ── Floating Geometric Shapes ── */
+  #floating-shapes {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .floating-shape {
+    position: absolute;
+    opacity: 0.08;
+    animation: floatShape linear infinite;
+  }
+
+  .floating-shape.circle {
+    border: 1px solid var(--gold);
+    border-radius: 50%;
+  }
+
+  .floating-shape.triangle {
+    width: 0 !important;
+    height: 0 !important;
+    border-left: 30px solid transparent;
+    border-right: 30px solid transparent;
+    border-bottom: 52px solid var(--gold);
+    background: transparent !important;
+  }
+
+  .floating-shape.square {
+    border: 1px solid var(--gold);
+    transform: rotate(45deg);
+  }
+
+  .floating-shape.line {
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent) !important;
+    border: none !important;
+  }
+
+  @keyframes floatShape {
+    0% { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 0.08; }
+    90% { opacity: 0.08; }
+    100% { transform: translateY(-100vh) rotate(360deg); opacity: 0; }
+  }
+
+  /* ── Ambient Light Orbs ── */
+  #ambient-orbs {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .ambient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: orbFloat ease-in-out infinite;
+    opacity: 0.15;
+  }
+
+  @keyframes orbFloat {
+    0%, 100% { transform: translate(0, 0) scale(1); }
+    25% { transform: translate(30px, -20px) scale(1.1); }
+    50% { transform: translate(-20px, 30px) scale(0.9); }
+    75% { transform: translate(-30px, -10px) scale(1.05); }
+  }
+
+  /* ── Cursor Trail dots handled by JS ── */
+
+  /* ── Click Burst Effect ── */
+  .click-burst {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9001;
+  }
+
+  .click-ring {
+    position: absolute;
+    border: 2px solid var(--gold);
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    animation: clickRingExpand 0.6s ease-out forwards;
+  }
+
+  @keyframes clickRingExpand {
+    0% { transform: translate(-50%, -50%) scale(0); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(3); opacity: 0; }
+  }
+
+  .click-particle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--gold-light);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: clickParticleFly 0.5s ease-out forwards;
+  }
+
+  @keyframes clickParticleFly {
+    0% { opacity: 1; }
+    100% { opacity: 0; }
+  }
+
+  /* ── Golden Sparkles ── */
+  #sparkle-container {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 91;
+    overflow: hidden;
+  }
+
+  .sparkle {
+    position: absolute;
+    width: 4px;
+    height: 4px;
+    background: var(--gold-light);
+    border-radius: 50%;
+    animation: sparkleAnim ease-in-out infinite;
+    box-shadow: 0 0 6px var(--gold), 0 0 12px var(--gold-light);
+  }
+
+  @keyframes sparkleAnim {
+    0%, 100% { opacity: 0; transform: scale(0) rotate(0deg); }
+    50% { opacity: 1; transform: scale(1) rotate(180deg); }
+  }
+
+  /* ── Pulsing Glow on Boxes ── */
+  .axiom-box {
+    animation: boxPulse 4s ease-in-out infinite;
+  }
+
+  @keyframes boxPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(212, 168, 67, 0.1), inset 0 0 30px rgba(212, 168, 67, 0.03); }
+    50% { box-shadow: 0 0 50px rgba(212, 168, 67, 0.25), inset 0 0 40px rgba(212, 168, 67, 0.08); }
+  }
+
+  /* ── Enhanced Shape Box Hover ── */
+  .shape-box {
+    transition: transform 0.3s, box-shadow 0.3s;
+  }
+
+  .shape-box:hover {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 0 25px rgba(212, 168, 67, 0.5);
+  }
+
+  /* ── Portrait Frame Glow ── */
+  .portrait-frame {
+    animation: portraitGlow 3s ease-in-out infinite;
+    transition: transform 0.4s, box-shadow 0.4s;
+  }
+
+  .portrait-frame:hover {
+    transform: scale(1.03);
+    box-shadow: 0 0 50px rgba(212, 168, 67, 0.4);
+  }
+
+  @keyframes portraitGlow {
+    0%, 100% { box-shadow: 0 0 30px rgba(212, 168, 67, 0.15); }
+    50% { box-shadow: 0 0 50px rgba(212, 168, 67, 0.35); }
+  }
+
+  /* ── Title Glow Effect ── */
+  .title-main {
+    animation: shimmer 4s ease-in-out infinite, titleGlow 3s ease-in-out infinite;
+  }
+
+  @keyframes titleGlow {
+    0%, 100% { filter: drop-shadow(0 0 30px rgba(212, 168, 67, 0.3)); }
+    50% { filter: drop-shadow(0 0 60px rgba(212, 168, 67, 0.6)) drop-shadow(0 0 100px rgba(240, 208, 120, 0.3)); }
+  }
+
+  /* ── Floating Lines Animation ── */
+  #floating-lines {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+
+  .floating-line {
+    position: absolute;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.3), transparent);
+    animation: lineSweep linear infinite;
+  }
+
+  @keyframes lineSweep {
+    0% { transform: translateX(-100%); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateX(100vw); opacity: 0; }
+  }
+
+  /* ── Glowing Corners ── */
+  .corner-glow {
+    position: fixed;
+    width: 200px;
+    height: 200px;
+    pointer-events: none;
+    z-index: 1;
+    opacity: 0.5;
+  }
+
+  .corner-glow.top-left {
+    top: 0;
+    left: 0;
+    background: radial-gradient(circle at top left, rgba(212, 168, 67, 0.15), transparent 70%);
+  }
+
+  .corner-glow.top-right {
+    top: 0;
+    right: 0;
+    background: radial-gradient(circle at top right, rgba(212, 168, 67, 0.1), transparent 70%);
+  }
+
+  .corner-glow.bottom-left {
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at bottom left, rgba(212, 168, 67, 0.1), transparent 70%);
+  }
+
+  .corner-glow.bottom-right {
+    bottom: 0;
+    right: 0;
+    background: radial-gradient(circle at bottom right, rgba(212, 168, 67, 0.15), transparent 70%);
+  }
+
+  /* ── Number Circle Pulse ── */
+  .slide.active .flex.items-center.justify-center.w-10.h-10 {
+    animation: numberPulse 2s ease-in-out infinite;
+  }
+
+  @keyframes numberPulse {
+    0%, 100% { box-shadow: 0 0 0 rgba(212, 168, 67, 0); }
+    50% { box-shadow: 0 0 20px rgba(212, 168, 67, 0.4); }
+  }
+
+  /* ── Gold Line Shimmer ── */
+  .gold-line, .gold-line-wide {
+    animation: lineShimmer 3s ease-in-out infinite;
+  }
+
+  @keyframes lineShimmer {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; filter: drop-shadow(0 0 10px rgba(212, 168, 67, 0.5)); }
+  }
+
+  /* ── Enhanced Quote Mark ── */
+  .quote-mark {
+    animation: quoteFloat 4s ease-in-out infinite;
+  }
+
+  @keyframes quoteFloat {
+    0%, 100% { transform: translateY(0); opacity: 0.3; }
+    50% { transform: translateY(-5px); opacity: 0.5; }
+  }
+
+  /* ── Scan Line Effect ── */
+  #scan-line {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(212, 168, 67, 0.3), transparent);
+    pointer-events: none;
+    z-index: 92;
+    animation: scanLine 8s linear infinite;
+    opacity: 0.5;
+  }
+
+  @keyframes scanLine {
+    0% { top: -2px; }
+    100% { top: 100vh; }
+  }
+
+  /* ── Breathing Background ── */
+  .slide-bg {
+    animation: bgBreathe 10s ease-in-out infinite;
+  }
+
+  @keyframes bgBreathe {
+    0%, 100% { background-position: 0% 0%; }
+    50% { background-position: 100% 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════════════════════════════════════════
+     CUSTOM CURSOR
+     ══════════════════════════════════════════════ -->
+
+<!-- Outer following ring -->
+<div id="cursor-ring"></div>
+
+<!-- Main cursor SVG (compass/geometric) -->
+<div id="custom-cursor">
+  <svg width="28" height="28" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <!-- Outer ring -->
+    <circle cx="14" cy="14" r="12" stroke="url(#cg1)" stroke-width="1" opacity="0.6"/>
+    <!-- Inner ring -->
+    <circle cx="14" cy="14" r="7" stroke="url(#cg2)" stroke-width="1" opacity="0.8"/>
+    <!-- Crosshair lines -->
+    <line x1="14" y1="2" x2="14" y2="8" stroke="url(#cg3)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="14" y1="20" x2="14" y2="26" stroke="url(#cg3)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="2" y1="14" x2="8" y2="14" stroke="url(#cg3)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="20" y1="14" x2="26" y2="14" stroke="url(#cg3)" stroke-width="1.5" stroke-linecap="round"/>
+    <!-- Diamond center -->
+    <path d="M14 10.5 L17.5 14 L14 17.5 L10.5 14 Z" fill="url(#cg4)" opacity="0.95"/>
+    <!-- Center dot -->
+    <circle cx="14" cy="14" r="1.5" fill="white" opacity="0.9"/>
+    <!-- Corner ticks -->
+    <line x1="8.5" y1="8.5" x2="10.2" y2="10.2" stroke="rgba(240,208,120,0.5)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="19.5" y1="8.5" x2="17.8" y2="10.2" stroke="rgba(240,208,120,0.5)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="8.5" y1="19.5" x2="10.2" y2="17.8" stroke="rgba(240,208,120,0.5)" stroke-width="1" stroke-linecap="round"/>
+    <line x1="19.5" y1="19.5" x2="17.8" y2="17.8" stroke="rgba(240,208,120,0.5)" stroke-width="1" stroke-linecap="round"/>
+    <defs>
+      <linearGradient id="cg1" x1="0" y1="0" x2="28" y2="28">
+        <stop offset="0%" stop-color="#f0d078"/>
+        <stop offset="100%" stop-color="#b8860b"/>
+      </linearGradient>
+      <linearGradient id="cg2" x1="0" y1="0" x2="28" y2="28">
+        <stop offset="0%" stop-color="#f0d078"/>
+        <stop offset="100%" stop-color="#d4a843"/>
+      </linearGradient>
+      <linearGradient id="cg3" x1="0" y1="0" x2="28" y2="28">
+        <stop offset="0%" stop-color="#f0d078"/>
+        <stop offset="100%" stop-color="#d4a843"/>
+      </linearGradient>
+      <radialGradient id="cg4" cx="50%" cy="50%" r="50%">
+        <stop offset="0%" stop-color="#fff8e0"/>
+        <stop offset="100%" stop-color="#d4a843"/>
+      </radialGradient>
+    </defs>
+  </svg>
+</div>
+
+<!-- Trail container -->
+<div id="cursor-trail-container"></div>
+
+<!-- ══════════════════════════════════════════════
+     VISUAL EFFECTS LAYERS
+     ══════════════════════════════════════════════ -->
+
+<!-- Star Field Background -->
+<div id="star-field"></div>
+
+<!-- Floating Geometric Shapes -->
+<div id="floating-shapes"></div>
+
+<!-- Floating Lines -->
+<div id="floating-lines"></div>
+
+<!-- Ambient Light Orbs -->
+<div id="ambient-orbs"></div>
+
+<!-- Golden Sparkles -->
+<div id="sparkle-container"></div>
+
+<!-- Corner Glows -->
+<div class="corner-glow top-left"></div>
+<div class="corner-glow top-right"></div>
+<div class="corner-glow bottom-left"></div>
+<div class="corner-glow bottom-right"></div>
+
+<!-- Scan Line -->
+<div id="scan-line"></div>
+
+<!-- Screen Vignette -->
+<div id="vignette"></div>
+
+<div id="presentation">
+
+  <!-- ==================== SLIDE 0: Title ==================== -->
+  <div id="slide-0" class="slide active" style="background: linear-gradient(160deg, #06081a 0%, #0a0e22 40%, #101830 70%, #06081a 100%);">
+    <div class="flex flex-col items-center justify-center gap-6 text-center" style="position:relative; z-index:2;">
+      <div class="fade-up font-cinzel text-xs tracking-[0.4em] uppercase" style="color: var(--gold); opacity:0.5;">
+        A Journey into Foundations
+      </div>
+      <h1 class="fade-up fade-up-delay-1 font-cinzel title-main">
+        LET'S LEARN ABOUT<br>AXIOM 1
+      </h1>
+      <div class="fade-up fade-up-delay-2 gold-line-wide"></div>
+      <p class="fade-up fade-up-delay-3 font-playfair italic text-base md:text-lg subtitle-pulse" style="color: var(--gold-light); opacity: 0.7;">
+        Euclid's First Axiom &bull; Click anywhere to begin
+      </p>
+    </div>
+    <!-- Subtle video load button -->
+    <button id="videoLoadBtn"
+      style="position:absolute; bottom:1.2rem; left:1.2rem; z-index:10;
+             background: transparent; border: 1px solid rgba(212,168,67,0.08);
+             color: rgba(212,168,67,0.12); font-size: 0.6rem; font-family: 'Inter', sans-serif;
+             padding: 3px 8px; border-radius: 4px; cursor: default;
+             letter-spacing: 0.04em; transition: all 0.4s ease;
+             backdrop-filter: none; outline: none;"
+      onmouseenter="this.style.color='rgba(212,168,67,0.55)'; this.style.borderColor='rgba(212,168,67,0.3)'; this.style.cursor='pointer';"
+      onmouseleave="this.style.color='rgba(212,168,67,0.12)'; this.style.borderColor='rgba(212,168,67,0.08)'; this.style.cursor='default';"
+      title="Media settings">⚙</button>
+    <!-- Floating particles -->
+    <div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1;" id="particles-container"></div>
+  </div>
+
+  <!-- ==================== SLIDE 1: Who Was Euclid? ==================== -->
+  <div id="slide-1" class="slide slide-bg">
+    <div class="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl gap-8 md:gap-12">
+      <div class="fade-up portrait-frame">
+        <img src="https://upload.wikimedia.org/wikipedia/commons/3/30/Euklid-von-Alexandria_1.jpg"
+             alt="Euclid of Alexandria"
+             onerror="this.parentElement.innerHTML='<div style=&quot;width:100%;height:100%;display:flex;align-items:center;justify-content:center;background:rgba(212,168,67,0.08);color:var(--gold);font-size:5rem;&quot;>𝝅</div>';">
+      </div>
+      <div class="flex flex-col gap-4 text-center md:text-left max-w-lg">
+        <p class="fade-up font-cinzel text-xs tracking-[0.35em] uppercase" style="color: var(--gold); opacity: 0.6;">
+          Chapter I
+        </p>
+        <h2 class="fade-up fade-up-delay-1 font-playfair text-3xl md:text-5xl font-bold" style="color: var(--gold-light);">
+          Who Was Euclid?
+        </h2>
+        <div class="fade-up fade-up-delay-1 gold-line mx-auto md:mx-0"></div>
+        <p class="fade-up fade-up-delay-2 text-sm md:text-base leading-relaxed" style="color: #b0a898;">
+          <span class="font-bold" style="color: var(--gold-light);">Euclid of Alexandria</span> (c. 300 BCE)
+          was a Greek mathematician often called the
+          <span class="font-playfair italic" style="color: var(--gold);">"Father of Geometry."</span>
+        </p>
+        <p class="fade-up fade-up-delay-3 text-sm md:text-base leading-relaxed" style="color: #b0a898;">
+          His monumental work, <span class="font-playfair italic font-bold" style="color: var(--gold-light);">The Elements</span>,
+          is one of the most influential textbooks ever written — studied for over
+          <span class="font-bold" style="color: var(--gold);">2,300 years</span>. It compiled
+          and systematized all known geometry of the ancient world into 13 books.
+        </p>
+        <p class="fade-up fade-up-delay-4 text-sm leading-relaxed" style="color: #8a8278;">
+          He taught at the great Library of Alexandria in Egypt during the reign of Ptolemy I.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 2: What Is an Axiom? ==================== -->
+  <div id="slide-2" class="slide slide-bg">
+    <div class="flex flex-col items-center justify-center w-full max-w-3xl gap-6 text-center">
+      <p class="fade-up font-cinzel text-xs tracking-[0.35em] uppercase" style="color: var(--gold); opacity: 0.6;">
+        Chapter II
+      </p>
+      <h2 class="fade-up fade-up-delay-1 font-playfair text-3xl md:text-5xl font-bold"
+          style="color: var(--gold-light);">
+        What Is an Axiom?
+      </h2>
+      <div class="fade-up fade-up-delay-1 gold-line"></div>
+
+      <div class="fade-up fade-up-delay-2 axiom-box w-full">
+        <p class="font-playfair text-lg md:text-xl italic leading-relaxed" style="color: var(--gold-light);">
+          "An <span class="font-bold not-italic" style="color: var(--gold);">axiom</span> is a statement accepted as
+          <span class="font-bold not-italic" style="color: #f0d078;">true without proof</span> —
+          a self-evident truth upon which other truths are built."
+        </p>
+      </div>
+
+      <div class="fade-up fade-up-delay-3 flex flex-col gap-3 mt-2 text-left max-w-xl">
+        <div class="flex items-start gap-3">
+          <span class="text-lg" style="color: var(--gold);">◆</span>
+          <p class="text-sm md:text-base" style="color: #b0a898;">
+            Axioms are the <span class="font-bold" style="color: var(--gold-light);">starting points</span> of mathematics — things so basic they cannot be proved from anything simpler.
+          </p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-lg" style="color: var(--gold);">◆</span>
+          <p class="text-sm md:text-base" style="color: #b0a898;">
+            Euclid listed <span class="font-bold" style="color: var(--gold);">5 common notions</span> (axioms) and
+            <span class="font-bold" style="color: var(--gold);">5 postulates</span> as the foundation for all of geometry.
+          </p>
+        </div>
+        <div class="flex items-start gap-3">
+          <span class="text-lg" style="color: var(--gold);">◆</span>
+          <p class="text-sm md:text-base" style="color: #b0a898;">
+            Every theorem and proof in <em>The Elements</em> traces back to these axioms — like a tree growing from its roots.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 3: Axiom 1 Stated ==================== -->
+  <div id="slide-3" class="slide slide-bg">
+    <div class="flex flex-col items-center justify-center w-full max-w-3xl gap-6 text-center">
+      <p class="fade-up font-cinzel text-xs tracking-[0.35em] uppercase" style="color: var(--gold); opacity: 0.6;">
+        Chapter III
+      </p>
+      <h2 class="fade-up fade-up-delay-1 font-playfair text-3xl md:text-5xl font-bold"
+          style="color: var(--gold-light);">
+        Euclid's First Axiom
+      </h2>
+      <div class="fade-up fade-up-delay-1 gold-line"></div>
+
+      <div class="fade-up fade-up-delay-2 axiom-box w-full" style="border-color: var(--gold);">
+        <p class="quote-mark" style="margin-bottom: -1rem;">"</p>
+        <p class="font-playfair text-xl md:text-2xl italic leading-relaxed" style="color: var(--gold-light);">
+          Things which are equal to the same thing are also equal to one another.
+        </p>
+        <p class="mt-3 text-sm font-cinzel tracking-wider" style="color: var(--gold); opacity: 0.7;">
+          — Euclid, The Elements, Common Notion 1
+        </p>
+      </div>
+
+      <!-- Visual diagram -->
+      <div class="fade-up fade-up-delay-3 flex flex-col items-center gap-4 mt-2">
+        <p class="text-sm font-bold tracking-widest uppercase" style="color: var(--gold); opacity: 0.7;">Visual Proof</p>
+        <div class="flex flex-wrap items-center justify-center gap-2">
+          <div class="shape-box shape-a">A</div>
+          <span class="equals-sign">=</span>
+          <div class="shape-box shape-c">C</div>
+          <span class="text-xl mx-4" style="color: rgba(212,168,67,0.4);">and</span>
+          <div class="shape-box shape-b">B</div>
+          <span class="equals-sign">=</span>
+          <div class="shape-box shape-c">C</div>
+        </div>
+        <div class="flex items-center gap-2 mt-2">
+          <span class="text-lg" style="color: var(--gold-light);">∴</span>
+          <div class="shape-box shape-a" style="width:50px;height:50px;font-size:1.3rem;">A</div>
+          <span class="equals-sign">=</span>
+          <div class="shape-box shape-b" style="width:50px;height:50px;font-size:1.3rem;">B</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 4: Experiment ==================== -->
+  <div id="slide-4" class="slide slide-bg" style="padding:0; overflow:hidden;">
+    <div id="experiment-wrapper" style="
+      position:relative; width:100%; height:100%;
+      display:flex; flex-direction:column; align-items:center; justify-content:center;
+      background: radial-gradient(ellipse at 50% 60%, #0d1433 0%, #06081a 100%);
+      overflow:hidden;
+    ">
+      <!-- Stars -->
+      <canvas id="star-canvas" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:0;"></canvas>
+
+      <!-- Title -->
+      <div style="position:relative;z-index:2;text-align:center;margin-bottom:0.5rem;">
+        <p style="font-family:'Cinzel',serif;font-size:0.7rem;letter-spacing:0.4em;color:#d4a843;opacity:0.6;text-transform:uppercase;margin-bottom:0.3rem;">Chapter IV</p>
+        <h2 style="font-family:'Playfair Display',serif;font-size:clamp(1.4rem,3vw,2.2rem);font-weight:700;color:#f0d078;line-height:1.2;">Experiment</h2>
+        <div style="width:80px;height:2px;background:linear-gradient(90deg,transparent,#d4a843,transparent);margin:0.4rem auto 0;"></div>
+      </div>
+
+      <!-- Main experiment canvas -->
+      <canvas id="exp-canvas" style="
+        position:relative;z-index:2;
+        border-radius:16px;
+        border:1px solid rgba(212,168,67,0.15);
+        box-shadow:0 0 60px rgba(212,168,67,0.08), 0 0 120px rgba(10,14,26,0.8);
+        background:transparent;
+        display:block;
+        max-width:96vw;
+        max-height:54vh;
+      "></canvas>
+
+      <!-- Subtitle / voice text display -->
+      <div id="exp-subtitle" style="
+        position:relative;z-index:2;
+        min-height:2.4rem;
+        max-width:820px;width:90%;
+        margin-top:0.5rem;
+        text-align:center;
+        font-family:'Playfair Display',serif;
+        font-style:italic;
+        font-size:clamp(0.8rem,1.6vw,1.05rem);
+        color:#e8d8a0;
+        text-shadow:0 0 20px rgba(212,168,67,0.5);
+        transition:opacity 0.5s ease;
+        opacity:0;
+        line-height:1.5;
+      "></div>
+
+      <!-- Reset button only (auto-plays) -->
+      <div style="position:relative;z-index:2;display:flex;gap:1rem;margin-top:0.5rem;">
+        <button id="exp-reset-btn" onclick="experimentReset()" style="
+          font-family:'Cinzel',serif;font-size:0.75rem;letter-spacing:0.12em;
+          padding:0.45rem 1.4rem;border-radius:8px;border:1px solid rgba(212,168,67,0.3);
+          background:rgba(255,255,255,0.03);color:rgba(240,208,120,0.55);cursor:pointer;
+          transition:all 0.25s;text-transform:uppercase;
+        "
+        onmouseenter="this.style.background='rgba(255,255,255,0.07)';this.style.color='#f0d078';"
+        onmouseleave="this.style.background='rgba(255,255,255,0.03)';this.style.color='rgba(240,208,120,0.55)';">
+          ↺ Replay
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 5: Why Is It Important? ==================== -->
+  <div id="slide-5" class="slide slide-bg">
+    <div class="flex flex-col items-center justify-center w-full max-w-3xl gap-6 text-center">
+      <p class="fade-up font-cinzel text-xs tracking-[0.35em] uppercase" style="color: var(--gold); opacity: 0.6;">
+        Chapter V
+      </p>
+      <h2 class="fade-up fade-up-delay-1 font-playfair text-3xl md:text-5xl font-bold"
+          style="color: var(--gold-light);">
+        Why Is This Axiom Important?
+      </h2>
+      <div class="fade-up fade-up-delay-1 gold-line"></div>
+
+      <div class="fade-up fade-up-delay-2 flex flex-col gap-5 mt-4 text-left max-w-2xl">
+        <div class="flex items-start gap-4">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0"
+               style="background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3);">
+            <span class="font-cinzel font-bold" style="color: var(--gold);">1</span>
+          </div>
+          <div>
+            <h3 class="font-playfair font-bold text-lg" style="color: var(--gold-light);">Foundation of Proofs</h3>
+            <p class="text-sm mt-1 leading-relaxed" style="color: #b0a898;">
+              Nearly every geometric proof in <em>The Elements</em> relies on this axiom, either directly or indirectly. It's the logical glue that holds chains of reasoning together.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0"
+               style="background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3);">
+            <span class="font-cinzel font-bold" style="color: var(--gold);">2</span>
+          </div>
+          <div>
+            <h3 class="font-playfair font-bold text-lg" style="color: var(--gold-light);">The Transitive Property</h3>
+            <p class="text-sm mt-1 leading-relaxed" style="color: #b0a898;">
+              In modern algebra, this axiom is formalized as the transitive property of equality — used in every branch of mathematics from arithmetic to abstract algebra.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0"
+               style="background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3);">
+            <span class="font-cinzel font-bold" style="color: var(--gold);">3</span>
+          </div>
+          <div>
+            <h3 class="font-playfair font-bold text-lg" style="color: var(--gold-light);">Still Relevant Today</h3>
+            <p class="text-sm mt-1 leading-relaxed" style="color: #b0a898;">
+              Over 2,300 years later, this axiom remains a cornerstone. It underpins computer science, physics, engineering — anywhere logical equivalence matters.
+            </p>
+          </div>
+        </div>
+
+        <div class="flex items-start gap-4">
+          <div class="flex items-center justify-center w-10 h-10 rounded-full flex-shrink-0"
+               style="background: rgba(212,168,67,0.15); border: 1px solid rgba(212,168,67,0.3);">
+            <span class="font-cinzel font-bold" style="color: var(--gold);">4</span>
+          </div>
+          <div>
+            <h3 class="font-playfair font-bold text-lg" style="color: var(--gold-light);">Teaches Logical Thinking</h3>
+            <p class="text-sm mt-1 leading-relaxed" style="color: #b0a898;">
+              Understanding axioms teaches us to think carefully about what we assume — and to build complex truths step by step from simple, unshakable foundations.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== SLIDE 6: Thank You ==================== -->
+  <div id="slide-6" class="slide slide-bg">
+    <div class="flex flex-col items-center justify-center w-full max-w-3xl gap-6 text-center">
+      <p class="fade-up font-cinzel text-xs tracking-[0.35em] uppercase" style="color: var(--gold); opacity: 0.6;">
+        Conclusion
+      </p>
+      <h2 class="fade-up fade-up-delay-1 font-playfair text-4xl md:text-6xl font-bold"
+          style="color: var(--gold-light);">
+        Thank You
+      </h2>
+      <div class="fade-up fade-up-delay-1 gold-line-wide"></div>
+
+      <div class="fade-up fade-up-delay-2 axiom-box" style="border-color: rgba(212,168,67,0.25); max-width:650px;">
+        <p class="quote-mark" style="margin-bottom: -0.5rem;">"</p>
+        <p class="font-playfair text-lg md:text-xl italic leading-relaxed" style="color: var(--gold-light);">
+          The laws of nature are but the mathematical thoughts of God.
+        </p>
+        <p class="mt-3 text-sm font-cinzel tracking-wider" style="color: var(--gold); opacity: 0.7;">
+          — Euclid of Alexandria
+        </p>
+      </div>
+
+      <div class="fade-up fade-up-delay-3 flex flex-col items-center gap-3 mt-4">
+        <div class="gold-line"></div>
+        <p class="font-playfair text-2xl md:text-3xl font-bold" style="color: var(--gold);">
+          Any Questions?
+        </p>
+        <p class="text-sm" style="color: #8a8278;">
+          Remember: from simple truths, great knowledge grows.
+        </p>
+      </div>
+
+      <!-- Credits -->
+      <div class="fade-up fade-up-delay-4 flex flex-col items-center gap-2 mt-8">
+        <div class="gold-line" style="width: 80px; opacity: 0.4;"></div>
+        <p class="font-cinzel text-sm tracking-[0.2em] uppercase" style="color: var(--gold); opacity: 0.7;">
+          Made by
+        </p>
+        <p class="font-playfair text-xl md:text-2xl font-bold" style="background: linear-gradient(135deg, #f0d078, #d4a843); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+          Vinuka & Osanda
+        </p>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Crack overlay -->
+<div id="crack-overlay">
+  <svg id="crack-svg" viewBox="0 0 1000 1000" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  </svg>
+</div>
+
+<!-- Impact glow -->
+<div id="impact-glow"></div>
+
+<!-- Flash overlay -->
+<div id="flash-overlay"></div>
+
+<!-- Progress bar -->
+<div id="progress-bar"></div>
+
+<!-- Subtitle bar -->
+<div id="subtitle-bar">
+  <div id="subtitle-text"></div>
+</div>
+
+<!-- Voice indicator -->
+<div id="voice-indicator" title="Click or press Z to toggle voice-over">
+  <div class="voice-waves">
+    <div class="voice-wave"></div>
+    <div class="voice-wave"></div>
+    <div class="voice-wave"></div>
+  </div>
+  <span id="voice-status">Voice</span>
+</div>
+
+<!-- Video indicator -->
+<div id="video-indicator" title="Press S to play video">
+  <span class="video-icon">🎬</span>
+  <span id="video-status">S = Video</span>
+</div>
+
+<!-- Spark container -->
+<div id="spark-container" style="position:fixed;inset:0;pointer-events:none;z-index:102;overflow:hidden;"></div>
+
+<!-- Video overlay (hidden by default) -->
+<div id="videoOverlay">
+  <div class="close-btn" id="videoCloseBtn">✕ Close (Ctrl+B)</div>
+  <div class="video-container" id="videoContainer"></div>
+  <div class="fullscreen-hint" id="fullscreenHint"></div>
+</div>
+
+<!-- Dust & Grain film overlay -->
+<div id="dust-grain-overlay"></div>
+
+<!-- ── Script Editor Panel ── -->
+<div id="script-editor">
+  <div class="editor-panel">
+    <!-- Header -->
+    <div class="editor-header">
+      <span class="editor-title">✍ Voice-Over Script Editor</span>
+      <button class="editor-close" id="editorCloseBtn" title="Close (E or Escape)">✕</button>
+    </div>
+
+    <!-- Slide Tabs -->
+    <div class="editor-tabs" id="editorTabs"></div>
+
+    <!-- Body -->
+    <div class="editor-body">
+      <div class="editor-slide-label" id="editorSlideLabel">
+        Slide 0
+        <span class="editor-badge" id="editorBadge">TITLE</span>
+      </div>
+
+      <!-- Preview bar -->
+      <div class="editor-preview-bar" id="editorPreviewBar">
+        <div class="preview-dot" id="previewDot"></div>
+        <span id="previewBarText">Type a script below and click Preview to hear it</span>
+      </div>
+
+      <textarea
+        class="editor-textarea"
+        id="editorTextarea"
+        placeholder="Type the voice-over script for this slide here…&#10;&#10;Leave empty for no voice-over on this slide."
+        spellcheck="true"
+      ></textarea>
+
+      <div class="editor-char-count" id="editorCharCount">0 characters · ~0 seconds</div>
+    </div>
+
+    <!-- Actions -->
+    <div class="editor-actions">
+      <button class="editor-btn editor-btn-primary" id="editorSaveBtn">💾 Save Script</button>
+      <button class="editor-btn editor-btn-secondary" id="editorPreviewBtn">▶ Preview Voice</button>
+      <button class="editor-btn editor-btn-secondary" id="editorStopBtn">■ Stop</button>
+      <button class="editor-btn editor-btn-danger" id="editorClearBtn">✕ Clear</button>
+      <span class="editor-hint">Press E to open/close · saves to browser</span>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ══════════════════════════════════════════════
+     Core Presentation Engine
+     ══════════════════════════════════════════════ */
+
+  var TOTAL_SLIDES = 7;
+  var currentSlide = 0;
+  var isAnimating = false;
+
+  var crackOverlay = document.getElementById('crack-overlay');
+  var crackSvg = document.getElementById('crack-svg');
+  var flashOverlay = document.getElementById('flash-overlay');
+  var impactGlow = document.getElementById('impact-glow');
+  var sparkContainer = document.getElementById('spark-container');
+  var presentation = document.getElementById('presentation');
+
+  // Create floating particles on title slide
+  (function createParticles() {
+    var container = document.getElementById('particles-container');
+    if (!container) return;
+    for (var i = 0; i < 25; i++) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      p.style.left = Math.random() * 100 + '%';
+      p.style.top = Math.random() * 100 + '%';
+      p.style.animationDelay = Math.random() * 6 + 's';
+      p.style.animationDuration = 4 + Math.random() * 4 + 's';
+      container.appendChild(p);
+    }
+  })();
+
+  // Create floating dust motes across the entire presentation
+  (function createDustMotes() {
+    for (var i = 0; i < 18; i++) {
+      var mote = document.createElement('div');
+      mote.className = 'dust-mote';
+      var size = 2 + Math.random() * 4;
+      mote.style.width = size + 'px';
+      mote.style.height = size + 'px';
+      mote.style.left = Math.random() * 100 + 'vw';
+      mote.style.top = (60 + Math.random() * 50) + 'vh';
+      mote.style.animationDuration = (8 + Math.random() * 14) + 's';
+      mote.style.animationDelay = Math.random() * 12 + 's';
+      document.body.appendChild(mote);
+    }
+  })();
+
+  /* ══════════════════════════════════════════════
+     ENHANCED VISUAL EFFECTS - Initialization
+     ══════════════════════════════════════════════ */
+
+  // Create Star Field
+  (function createStarField() {
+    var container = document.getElementById('star-field');
+    if (!container) return;
+    for (var i = 0; i < 100; i++) {
+      var star = document.createElement('div');
+      star.className = 'star';
+      var size = Math.random() * 2 + 1;
+      star.style.width = size + 'px';
+      star.style.height = size + 'px';
+      star.style.left = Math.random() * 100 + '%';
+      star.style.top = Math.random() * 100 + '%';
+      star.style.animationDuration = (2 + Math.random() * 4) + 's';
+      star.style.animationDelay = Math.random() * 4 + 's';
+      container.appendChild(star);
+    }
+  })();
+
+  // Create Floating Geometric Shapes
+  (function createFloatingShapes() {
+    var container = document.getElementById('floating-shapes');
+    if (!container) return;
+    var shapes = ['circle', 'triangle', 'square', 'line'];
+    for (var i = 0; i < 15; i++) {
+      var shape = document.createElement('div');
+      var type = shapes[Math.floor(Math.random() * shapes.length)];
+      shape.className = 'floating-shape ' + type;
+      var size = 20 + Math.random() * 60;
+      shape.style.width = size + 'px';
+      shape.style.height = type === 'line' ? '1px' : size + 'px';
+      shape.style.left = Math.random() * 100 + '%';
+      shape.style.animationDuration = (15 + Math.random() * 25) + 's';
+      shape.style.animationDelay = Math.random() * 20 + 's';
+      container.appendChild(shape);
+    }
+  })();
+
+  // Create Floating Lines
+  (function createFloatingLines() {
+    var container = document.getElementById('floating-lines');
+    if (!container) return;
+    for (var i = 0; i < 5; i++) {
+      var line = document.createElement('div');
+      line.className = 'floating-line';
+      line.style.width = (100 + Math.random() * 200) + 'px';
+      line.style.top = (10 + Math.random() * 80) + '%';
+      line.style.animationDuration = (12 + Math.random() * 8) + 's';
+      line.style.animationDelay = Math.random() * 15 + 's';
+      container.appendChild(line);
+    }
+  })();
+
+  // Create Ambient Light Orbs
+  (function createAmbientOrbs() {
+    var container = document.getElementById('ambient-orbs');
+    if (!container) return;
+    var colors = [
+      'rgba(212, 168, 67, 0.3)',
+      'rgba(240, 208, 120, 0.2)',
+      'rgba(184, 134, 11, 0.25)',
+      'rgba(100, 120, 180, 0.15)'
+    ];
+    for (var i = 0; i < 4; i++) {
+      var orb = document.createElement('div');
+      orb.className = 'ambient-orb';
+      var size = 200 + Math.random() * 300;
+      orb.style.width = size + 'px';
+      orb.style.height = size + 'px';
+      orb.style.left = Math.random() * 100 + '%';
+      orb.style.top = Math.random() * 100 + '%';
+      orb.style.background = colors[i % colors.length];
+      orb.style.animationDuration = (10 + Math.random() * 10) + 's';
+      orb.style.animationDelay = Math.random() * 5 + 's';
+      container.appendChild(orb);
+    }
+  })();
+
+  // Create Golden Sparkles
+  (function createSparkles() {
+    var container = document.getElementById('sparkle-container');
+    if (!container) return;
+    for (var i = 0; i < 25; i++) {
+      var sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      sparkle.style.left = Math.random() * 100 + '%';
+      sparkle.style.top = Math.random() * 100 + '%';
+      sparkle.style.animationDuration = (2 + Math.random() * 3) + 's';
+      sparkle.style.animationDelay = Math.random() * 5 + 's';
+      container.appendChild(sparkle);
+    }
+  })();
+
+  // ── Custom Cursor System ──
+  var customCursor = document.getElementById('custom-cursor');
+  var cursorRing = document.getElementById('cursor-ring');
+  var trailContainer = document.getElementById('cursor-trail-container');
+
+  var mouseX = 0, mouseY = 0;
+  var ringX = 0, ringY = 0;
+  var cursorVisible = false;
+  var isClicking = false;
+  var cursorAngle = 0;
+
+  // Spawn glowing trail dots
+  function spawnTrailDot(x, y) {
+    var dot = document.createElement('div');
+    var size = 3 + Math.random() * 4;
+    var isGold = Math.random() > 0.4;
+    dot.style.cssText = [
+      'position:fixed',
+      'width:' + size + 'px',
+      'height:' + size + 'px',
+      'border-radius:50%',
+      'pointer-events:none',
+      'left:' + (x - size/2) + 'px',
+      'top:' + (y - size/2) + 'px',
+      'background:' + (isGold
+        ? 'radial-gradient(circle, rgba(240,208,120,0.9), rgba(212,168,67,0.3))'
+        : 'radial-gradient(circle, rgba(255,255,255,0.8), rgba(240,208,120,0.2))'),
+      'box-shadow:0 0 ' + (size * 2) + 'px rgba(212,168,67,0.6)',
+      'opacity:0.85',
+      'transition:opacity 0.5s ease, transform 0.5s ease'
+    ].join(';');
+    trailContainer.appendChild(dot);
+
+    requestAnimationFrame(function() {
+      dot.style.opacity = '0';
+      dot.style.transform = 'scale(0.2) translateY(-6px)';
+    });
+    setTimeout(function() { dot.remove(); }, 520);
+  }
+
+  var lastTrailX = 0, lastTrailY = 0;
+  var trailThrottle = 0;
+
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+
+    if (!cursorVisible) {
+      customCursor.style.opacity = '1';
+      cursorRing.style.opacity = '1';
+      cursorVisible = true;
+    }
+
+    // Move main cursor instantly
+    customCursor.style.left = mouseX + 'px';
+    customCursor.style.top = mouseY + 'px';
+
+    // Spawn trail dots at intervals based on movement distance
+    var dx = mouseX - lastTrailX;
+    var dy = mouseY - lastTrailY;
+    var dist = Math.sqrt(dx*dx + dy*dy);
+    trailThrottle++;
+    if (dist > 12 || trailThrottle % 3 === 0) {
+      spawnTrailDot(mouseX, mouseY);
+      lastTrailX = mouseX;
+      lastTrailY = mouseY;
+    }
+  });
+
+  document.addEventListener('mouseleave', function() {
+    customCursor.style.opacity = '0';
+    cursorRing.style.opacity = '0';
+    cursorVisible = false;
+  });
+
+  document.addEventListener('mouseenter', function() {
+    customCursor.style.opacity = '1';
+    cursorRing.style.opacity = '1';
+    cursorVisible = true;
+  });
+
+  document.addEventListener('mousedown', function() {
+    isClicking = true;
+    cursorRing.classList.add('clicking');
+    customCursor.style.transform = 'translate(-50%, -50%) scale(0.75)';
+  });
+
+  document.addEventListener('mouseup', function() {
+    isClicking = false;
+    cursorRing.classList.remove('clicking');
+    customCursor.style.transform = 'translate(-50%, -50%) scale(1)';
+  });
+
+  // Smooth lagging ring + rotating cursor
+  (function animateCursor() {
+    // Lag ring behind mouse
+    ringX += (mouseX - ringX) * 0.12;
+    ringY += (mouseY - ringY) * 0.12;
+    cursorRing.style.left = ringX + 'px';
+    cursorRing.style.top = ringY + 'px';
+
+    // Slowly rotate the main cursor SVG
+    cursorAngle += 0.4;
+    var svg = customCursor.querySelector('svg');
+    if (svg) {
+      svg.style.transform = 'rotate(' + cursorAngle + 'deg)';
+    }
+
+    requestAnimationFrame(animateCursor);
+  })();
+
+  // Click Burst Effect
+  function createClickBurst(x, y) {
+    // Gold expanding rings
+    for (var r = 0; r < 3; r++) {
+      (function(rr) {
+        setTimeout(function() {
+          var ring = document.createElement('div');
+          ring.style.cssText = [
+            'position:fixed',
+            'left:' + x + 'px',
+            'top:' + y + 'px',
+            'width:' + (20 + rr * 18) + 'px',
+            'height:' + (20 + rr * 18) + 'px',
+            'border-radius:50%',
+            'border:' + (2 - rr * 0.4) + 'px solid rgba(240,208,120,' + (0.9 - rr * 0.25) + ')',
+            'box-shadow:0 0 12px rgba(212,168,67,0.5)',
+            'transform:translate(-50%,-50%) scale(0)',
+            'pointer-events:none',
+            'z-index:999996',
+            'transition:transform 0.55s cubic-bezier(0.1,0.8,0.2,1), opacity 0.55s ease-out'
+          ].join(';');
+          document.body.appendChild(ring);
+          requestAnimationFrame(function() {
+            ring.style.transform = 'translate(-50%,-50%) scale(3.5)';
+            ring.style.opacity = '0';
+          });
+          setTimeout(function() { ring.remove(); }, 600);
+        }, rr * 80);
+      })(r);
+    }
+
+    // Gold diamond sparks flying outward
+    for (var p = 0; p < 16; p++) {
+      (function(pp) {
+        var angle = (pp / 16) * Math.PI * 2;
+        var dist = 45 + Math.random() * 65;
+        var tx = Math.cos(angle) * dist;
+        var ty = Math.sin(angle) * dist;
+        var size = 3 + Math.random() * 5;
+        var isDiamond = Math.random() > 0.5;
+        var delay = Math.random() * 60;
+
+        setTimeout(function() {
+          var spark = document.createElement('div');
+          spark.style.cssText = [
+            'position:fixed',
+            'left:' + x + 'px',
+            'top:' + y + 'px',
+            'width:' + size + 'px',
+            'height:' + size + 'px',
+            'pointer-events:none',
+            'z-index:999999',
+            'transform:translate(-50%,-50%) rotate(45deg) scale(1)',
+            isDiamond ? 'border-radius:1px' : 'border-radius:50%',
+            'background:radial-gradient(circle, #fff8e0, #d4a843)',
+            'box-shadow:0 0 ' + (size * 2) + 'px rgba(240,208,120,0.9)',
+            'transition:transform ' + (0.45 + Math.random() * 0.2) + 's cubic-bezier(0.1,0.8,0.15,1), opacity 0.5s ease-out'
+          ].join(';');
+          document.body.appendChild(spark);
+          requestAnimationFrame(function() {
+            spark.style.transform = 'translate(calc(-50% + ' + tx + 'px), calc(-50% + ' + ty + 'px)) rotate(' + (45 + Math.random()*180) + 'deg) scale(0)';
+            spark.style.opacity = '0';
+          });
+          setTimeout(function() { spark.remove(); }, 600);
+        }, delay);
+      })(p);
+    }
+
+    // Central gold flash
+    var flash = document.createElement('div');
+    flash.style.cssText = [
+      'position:fixed',
+      'left:' + x + 'px',
+      'top:' + y + 'px',
+      'width:40px',
+      'height:40px',
+      'border-radius:50%',
+      'pointer-events:none',
+      'z-index:999995',
+      'transform:translate(-50%,-50%) scale(0)',
+      'background:radial-gradient(circle, rgba(255,248,220,0.95), rgba(212,168,67,0.4) 50%, transparent 70%)',
+      'transition:transform 0.25s ease-out, opacity 0.3s ease-out'
+    ].join(';');
+    document.body.appendChild(flash);
+    requestAnimationFrame(function() {
+      flash.style.transform = 'translate(-50%,-50%) scale(2.5)';
+      flash.style.opacity = '0';
+    });
+    setTimeout(function() { flash.remove(); }, 350);
+  }
+
+  // Add click burst to all clicks
+  document.addEventListener('click', function(e) {
+    createClickBurst(e.clientX, e.clientY);
+  });
+
+  // Periodically respawn sparkles for continuous effect
+  setInterval(function() {
+    var container = document.getElementById('sparkle-container');
+    if (!container) return;
+    var sparkles = container.querySelectorAll('.sparkle');
+    if (sparkles.length > 0) {
+      var randomSparkle = sparkles[Math.floor(Math.random() * sparkles.length)];
+      randomSparkle.style.left = Math.random() * 100 + '%';
+      randomSparkle.style.top = Math.random() * 100 + '%';
+    }
+  }, 2000);
+
+  // Create progress dots
+  var progressBar = document.getElementById('progress-bar');
+  for (var pd = 0; pd < TOTAL_SLIDES; pd++) {
+    var dot = document.createElement('div');
+    dot.className = 'progress-dot' + (pd === 0 ? ' active' : '');
+    progressBar.appendChild(dot);
+  }
+
+  function updateProgress() {
+    var dots = progressBar.querySelectorAll('.progress-dot');
+    for (var i = 0; i < dots.length; i++) {
+      dots[i].classList.remove('active');
+      if (i < currentSlide) {
+        dots[i].classList.add('visited');
+      } else if (i === currentSlide) {
+        dots[i].classList.add('active');
+        dots[i].classList.remove('visited');
+      } else {
+        dots[i].classList.remove('visited');
+      }
+    }
+    // Update video indicator
+    updateVideoIndicator();
+  }
+
+  // Video indicator elements
+  var videoIndicator = document.getElementById('video-indicator');
+  var videoStatusEl = document.getElementById('video-status');
+
+  function updateVideoIndicator() {
+    var hasVideo = videoAssignments[currentSlide] || videoAssignments[String(currentSlide)];
+    if (hasVideo) {
+      videoIndicator.classList.add('has-video');
+      videoIndicator.classList.remove('no-video');
+      videoStatusEl.textContent = 'S = Play';
+    } else {
+      videoIndicator.classList.remove('has-video');
+      videoIndicator.classList.add('no-video');
+      videoStatusEl.textContent = 'No Video';
+    }
+  }
+
+  // Video indicator click handler
+  if (videoIndicator) {
+    videoIndicator.addEventListener('click', function(e) {
+      e.stopPropagation();
+      handlePlayVideo();
+    });
+  }
+
+  // Generate a smooth lightning path using quadratic bezier curves
+  function generateLightningPath(startX, startY, endX, endY, segments, jitterAmount) {
+    jitterAmount = jitterAmount || 60;
+    var points = [{ x: startX, y: startY }];
+    var dx = endX - startX;
+    var dy = endY - startY;
+
+    for (var i = 1; i < segments; i++) {
+      var t = i / segments;
+      var baseX = startX + dx * t;
+      var baseY = startY + dy * t;
+      var edgeFade = Math.sin(t * Math.PI);
+      var jitter = (Math.random() - 0.5) * jitterAmount * edgeFade;
+      points.push({ x: baseX + jitter, y: baseY });
+    }
+    points.push({ x: endX, y: endY });
+
+    var d = 'M ' + points[0].x + ' ' + points[0].y;
+    for (var i = 1; i < points.length - 1; i++) {
+      var midX = (points[i].x + points[i + 1].x) / 2;
+      var midY = (points[i].y + points[i + 1].y) / 2;
+      d += ' Q ' + points[i].x + ' ' + points[i].y + ' ' + midX + ' ' + midY;
+    }
+    var last = points[points.length - 1];
+    d += ' L ' + last.x + ' ' + last.y;
+
+    return { d: d, points: points };
+  }
+
+  // Simple branches
+  function generateSimpleBranches(points, count) {
+    var paths = [];
+    var usedIndices = {};
+    var attempts = count * 3;
+    var placed = 0;
+
+    for (var a = 0; a < attempts && placed < count; a++) {
+      var i = 2 + Math.floor(Math.random() * (points.length - 4));
+      if (usedIndices[i] || usedIndices[i - 1] || usedIndices[i + 1]) continue;
+      usedIndices[i] = true;
+
+      var pt = points[i];
+      var dir = Math.random() > 0.5 ? 1 : -1;
+      var angle = dir * (0.6 + Math.random() * 0.8);
+      var len = 25 + Math.random() * 40;
+
+      var bEndX = pt.x + Math.cos(angle) * len;
+      var bEndY = pt.y + Math.sin(angle) * len * 0.5;
+      var ctrlX = pt.x + Math.cos(angle) * len * 0.5 + (Math.random() - 0.5) * 10;
+      var ctrlY = pt.y + Math.sin(angle) * len * 0.25;
+
+      var bd = 'M ' + pt.x + ' ' + pt.y + ' Q ' + ctrlX + ' ' + ctrlY + ' ' + bEndX + ' ' + bEndY;
+      paths.push({ d: bd, width: 1 + Math.random() * 0.8 });
+      placed++;
+    }
+    return paths;
+  }
+
+  // Create animated SVG path
+  function createAnimatedPath(d, className, duration, delay, strokeWidth) {
+    var p = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    p.setAttribute('d', d);
+    p.classList.add(className);
+    if (strokeWidth) p.style.strokeWidth = strokeWidth;
+    crackSvg.appendChild(p);
+    var len = p.getTotalLength();
+    p.style.strokeDasharray = len;
+    p.style.strokeDashoffset = len;
+    p.style.transition = 'stroke-dashoffset ' + duration + 'ms cubic-bezier(0.15, 0.85, 0.3, 1) ' + delay + 'ms';
+    return { el: p, len: len };
+  }
+
+  // Spawn spark particles
+  function spawnSparks(x, y, count) {
+    for (var i = 0; i < count; i++) {
+      var spark = document.createElement('div');
+      spark.className = 'spark';
+
+      var size = 2 + Math.random() * 4;
+      spark.style.width = size + 'px';
+      spark.style.height = size + 'px';
+
+      if (Math.random() > 0.65) {
+        spark.style.background = 'white';
+        spark.style.boxShadow = '0 0 6px white, 0 0 12px rgba(240,208,120,0.8)';
+      } else {
+        var g = Math.floor(160 + Math.random() * 80);
+        spark.style.background = 'rgb(240, ' + g + ', ' + (40 + Math.random() * 60) + ')';
+        spark.style.boxShadow = '0 0 4px rgba(240, ' + g + ', 60, 0.9), 0 0 10px rgba(212,168,67,0.5)';
+      }
+
+      spark.style.left = x + 'px';
+      spark.style.top = y + 'px';
+      spark.style.opacity = '1';
+      sparkContainer.appendChild(spark);
+
+      var angle = Math.random() * Math.PI * 2;
+      var speed = 60 + Math.random() * 200;
+      var sdx = Math.cos(angle) * speed;
+      var sdy = Math.sin(angle) * speed;
+      var dur = 400 + Math.random() * 500;
+
+      (function(sp, ddx, ddy, dd) {
+        requestAnimationFrame(function() {
+          sp.style.transition = 'all ' + dd + 'ms cubic-bezier(0.1, 0.8, 0.3, 1)';
+          sp.style.transform = 'translate(' + ddx + 'px, ' + ddy + 'px) scale(0)';
+          sp.style.opacity = '0';
+        });
+        setTimeout(function() { sp.remove(); }, dd + 50);
+      })(spark, sdx, sdy, dur);
+    }
+  }
+
+  // Shockwave rings
+  function createShockwave() {
+    var ring = document.createElement('div');
+    ring.className = 'shockwave';
+    ring.style.opacity = '1';
+    document.body.appendChild(ring);
+
+    requestAnimationFrame(function() {
+      ring.style.transition = 'all 1s cubic-bezier(0.1, 0.6, 0.2, 1)';
+      ring.style.width = '140vmax';
+      ring.style.height = '140vmax';
+      ring.style.opacity = '0';
+      ring.style.borderWidth = '1px';
+    });
+
+    setTimeout(function() { ring.remove(); }, 1100);
+
+    setTimeout(function() {
+      var ring2 = document.createElement('div');
+      ring2.className = 'shockwave';
+      ring2.style.opacity = '0.5';
+      ring2.style.borderColor = 'rgba(255, 255, 240, 0.35)';
+      ring2.style.boxShadow = '0 0 20px rgba(255,255,240,0.2)';
+      document.body.appendChild(ring2);
+
+      requestAnimationFrame(function() {
+        ring2.style.transition = 'all 0.8s cubic-bezier(0.1, 0.6, 0.2, 1)';
+        ring2.style.width = '90vmax';
+        ring2.style.height = '90vmax';
+        ring2.style.opacity = '0';
+      });
+
+      setTimeout(function() { ring2.remove(); }, 900);
+    }, 100);
+  }
+
+  function sleep(ms) {
+    return new Promise(function(resolve) { setTimeout(resolve, ms); });
+  }
+
+  // ── Toast notification (no alerts) ──
+  function showToast(message) {
+    var existing = document.getElementById('toast-notif');
+    if (existing) existing.remove();
+
+    var toast = document.createElement('div');
+    toast.id = 'toast-notif';
+    toast.textContent = message;
+    toast.style.cssText = [
+      'position:fixed',
+      'top:2rem',
+      'left:50%',
+      'transform:translateX(-50%) translateY(-20px)',
+      'background:rgba(10,14,26,0.95)',
+      'border:1px solid rgba(212,168,67,0.5)',
+      'color:var(--gold-light)',
+      'font-family:Inter,sans-serif',
+      'font-size:0.85rem',
+      'letter-spacing:0.04em',
+      'padding:0.65rem 1.4rem',
+      'border-radius:40px',
+      'z-index:99999',
+      'pointer-events:none',
+      'opacity:0',
+      'transition:all 0.3s cubic-bezier(0.2,0.8,0.3,1)',
+      'box-shadow:0 0 20px rgba(212,168,67,0.15)',
+      'backdrop-filter:blur(8px)'
+    ].join(';');
+    document.body.appendChild(toast);
+
+    requestAnimationFrame(function() {
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateX(-50%) translateY(0)';
+    });
+
+    setTimeout(function() {
+      toast.style.opacity = '0';
+      toast.style.transform = 'translateX(-50%) translateY(-10px)';
+      setTimeout(function() { toast.remove(); }, 350);
+    }, 2400);
+  }
+
+  // ── Transition system ──
+  var transitionPool = ['fade', 'slideUp', 'curtain', 'ripple'];
+  var lastTransitionIdx = -1;
+
+  function pickTransition(isFirst) {
+    if (isFirst) return 'ripple';
+    var available = [];
+    for (var i = 0; i < transitionPool.length; i++) {
+      if (i !== lastTransitionIdx) available.push(i);
+    }
+    var pick = available[Math.floor(Math.random() * available.length)];
+    lastTransitionIdx = pick;
+    return transitionPool[pick];
+  }
+
+  function resetSlide(slide) {
+    slide.style.cssText = '';
+  }
+
+  // ── Transition: Simple Clean Fade ──
+  function doFadeTransition(from, to, done) {
+    from.style.cssText = 'position:absolute;inset:0;opacity:1;z-index:3;pointer-events:none;transition:opacity 0.55s ease;';
+    to.style.cssText = 'position:absolute;inset:0;opacity:0;z-index:2;pointer-events:none;transition:opacity 0.55s ease 0.1s;';
+    to.classList.add('active');
+
+    var gold = document.createElement('div');
+    gold.style.cssText = 'position:fixed;inset:0;z-index:5;pointer-events:none;background:radial-gradient(ellipse at center,rgba(212,168,67,0.13) 0%,transparent 70%);opacity:0;transition:opacity 0.3s ease;';
+    document.body.appendChild(gold);
+
+    requestAnimationFrame(function() {
+      from.style.opacity = '0';
+      to.style.opacity = '1';
+      gold.style.opacity = '1';
+    });
+
+    setTimeout(function() {
+      gold.style.opacity = '0';
+    }, 300);
+
+    setTimeout(function() {
+      from.classList.remove('active');
+      resetSlide(from);
+      resetSlide(to);
+      gold.remove();
+      done();
+    }, 700);
+  }
+
+  // ── Transition: Slide Up ──
+  function doSlideUpTransition(from, to, done) {
+    from.style.cssText = 'position:absolute;inset:0;opacity:1;z-index:3;pointer-events:none;transition:transform 0.6s cubic-bezier(0.4,0,0.2,1),opacity 0.6s ease;';
+    to.style.cssText = 'position:absolute;inset:0;opacity:1;z-index:2;pointer-events:none;transform:translateY(100%);transition:transform 0.6s cubic-bezier(0.4,0,0.2,1);';
+    to.classList.add('active');
+
+    var line = document.createElement('div');
+    line.style.cssText = 'position:fixed;left:0;bottom:0;width:100%;height:2px;z-index:10;pointer-events:none;background:linear-gradient(90deg,transparent,rgba(212,168,67,0.9) 30%,rgba(255,240,200,1) 50%,rgba(212,168,67,0.9) 70%,transparent);box-shadow:0 0 16px rgba(212,168,67,0.7);transition:bottom 0.6s cubic-bezier(0.4,0,0.2,1);';
+    document.body.appendChild(line);
+
+    requestAnimationFrame(function() {
+      from.style.transform = 'translateY(-30%)';
+      from.style.opacity = '0';
+      to.style.transform = 'translateY(0)';
+      line.style.bottom = '100%';
+    });
+
+    setTimeout(function() {
+      from.classList.remove('active');
+      resetSlide(from);
+      resetSlide(to);
+      line.remove();
+      done();
+    }, 680);
+  }
+
+  // ── Transition: Gold Curtain ──
+  function doCurtainTransition(from, to, done) {
+    var L = document.createElement('div');
+    var R = document.createElement('div');
+    var base = 'position:fixed;top:0;height:100vh;width:51%;z-index:5;pointer-events:none;background:#0a0e1a;transition:transform 0.5s cubic-bezier(0.77,0,0.18,1);';
+    L.style.cssText = base + 'left:0;transform:translateX(-100%);border-right:1px solid rgba(212,168,67,0.5);box-shadow:4px 0 20px rgba(212,168,67,0.2);';
+    R.style.cssText = base + 'right:0;transform:translateX(100%);border-left:1px solid rgba(212,168,67,0.5);box-shadow:-4px 0 20px rgba(212,168,67,0.2);';
+    document.body.appendChild(L);
+    document.body.appendChild(R);
+
+    requestAnimationFrame(function() {
+      L.style.transform = 'translateX(0)';
+      R.style.transform = 'translateX(0)';
+    });
+
+    setTimeout(function() {
+      from.classList.remove('active');
+      resetSlide(from);
+      to.classList.add('active');
+      resetSlide(to);
+
+      spawnSparks(window.innerWidth / 2, window.innerHeight / 2, 12);
+
+      setTimeout(function() {
+        L.style.transform = 'translateX(-100%)';
+        R.style.transform = 'translateX(100%)';
+
+        setTimeout(function() {
+          L.remove();
+          R.remove();
+          done();
+        }, 560);
+      }, 80);
+    }, 540);
+  }
+
+  // ── Transition: Ripple ──
+  function doRippleTransition(from, to, done) {
+    var size = Math.max(window.innerWidth, window.innerHeight) * 2.8;
+
+    var ripple = document.createElement('div');
+    ripple.style.cssText = 'position:fixed;top:50%;left:50%;width:0;height:0;border-radius:50%;transform:translate(-50%,-50%);z-index:5;pointer-events:none;background:#0a0e1a;box-shadow:0 0 0 2px rgba(212,168,67,0.5),0 0 40px rgba(212,168,67,0.2);transition:width 0.6s cubic-bezier(0.4,0,0.2,1),height 0.6s cubic-bezier(0.4,0,0.2,1);';
+    document.body.appendChild(ripple);
+
+    requestAnimationFrame(function() {
+      ripple.style.width = size + 'px';
+      ripple.style.height = size + 'px';
+      spawnSparks(window.innerWidth / 2, window.innerHeight / 2, 18);
+    });
+
+    setTimeout(function() {
+      from.classList.remove('active');
+      resetSlide(from);
+      to.classList.add('active');
+      resetSlide(to);
+
+      ripple.style.transition = 'opacity 0.45s ease-out';
+      ripple.style.opacity = '0';
+
+      setTimeout(function() {
+        ripple.remove();
+        done();
+      }, 480);
+    }, 400);
+  }
+
+  function transitionToNext() {
+    if (isAnimating) return;
+    if (currentSlide >= TOTAL_SLIDES - 1) return;
+
+    if (videoOverlayOpen) handleCloseVideo();
+    stopCurrentAudio();
+    stopVoiceOver();
+
+    isAnimating = true;
+
+    var fromSlide = document.getElementById('slide-' + currentSlide);
+    var toSlide = document.getElementById('slide-' + (currentSlide + 1));
+    var style = pickTransition(currentSlide === 0);
+
+    function onDone() {
+      currentSlide++;
+      updateProgress();
+      isAnimating = false;
+      speakSlideNarration(currentSlide);
+      autoPlayAudioForSlide(currentSlide);
+    }
+
+    if (style === 'ripple')        doRippleTransition(fromSlide, toSlide, onDone);
+    else if (style === 'curtain')  doCurtainTransition(fromSlide, toSlide, onDone);
+    else if (style === 'slideUp')  doSlideUpTransition(fromSlide, toSlide, onDone);
+    else                           doFadeTransition(fromSlide, toSlide, onDone);
+  }
+
+  // Robust auto-play function — called after every slide transition
+  function autoPlayAudioForSlide(slideNum) {
+    // Check both number and string keys (localStorage keys become strings)
+    var assignment = audioAssignments[slideNum] || audioAssignments[String(slideNum)];
+    if (!assignment || !assignment.url) {
+      return;
+    }
+
+    try {
+      stopCurrentAudio(); // Stop any lingering audio first
+      currentAudio = new Audio(assignment.url);
+      currentAudioSlide = slideNum;
+
+      var playPromise = currentAudio.play();
+      if (playPromise && playPromise.then) {
+        playPromise.catch(function(err) {
+          currentAudio = null;
+          currentAudioSlide = -1;
+        });
+      }
+
+      currentAudio.addEventListener('ended', function() {
+        currentAudio = null;
+        currentAudioSlide = -1;
+      });
+
+      currentAudio.addEventListener('error', function(e) {
+        currentAudio = null;
+        currentAudioSlide = -1;
+      });
+    } catch (e) {
+      currentAudio = null;
+      currentAudioSlide = -1;
+    }
+  }
+
+  /* ══════════════════════════════════════════════
+     Video Feature — Keyboard-Only, Per-Slide
+     ══════════════════════════════════════════════ */
+
+  var videoOverlay = document.getElementById('videoOverlay');
+  var videoContainer = document.getElementById('videoContainer');
+  var videoCloseBtn = document.getElementById('videoCloseBtn');
+  var fullscreenHint = document.getElementById('fullscreenHint');
+
+  // Load from localStorage or start fresh
+  var videoAssignments = {};
+  try {
+    var savedVideos = localStorage.getItem('presentationVideoAssignments');
+    if (savedVideos) videoAssignments = JSON.parse(savedVideos);
+  } catch (e) { videoAssignments = {}; }
+
+  var audioAssignments = {};
+  try {
+    var savedAudio = localStorage.getItem('presentationAudioAssignments');
+    if (savedAudio) audioAssignments = JSON.parse(savedAudio);
+  } catch (e) { audioAssignments = {}; }
+
+  var videoOverlayOpen = false;
+  var currentAudio = null;  // Currently playing Audio object
+  var currentAudioSlide = -1;  // Which slide's audio is playing
+
+  var slideLabels = [
+    'Title Screen',
+    'Who Was Euclid?',
+    'What Is an Axiom?',
+    "Euclid's First Axiom",
+    'Experiment',
+    'Why Is It Important?',
+    'Thank You / Conclusion'
+  ];
+
+  /* ══════════════════════════════════════════════
+     Voice-Over System — Bulletproof Edition
+     Ultra-short chunks + stall watchdog + instant restart
+     ══════════════════════════════════════════════ */
+
+  var slideNarrations = {
+    0: '',
+
+    1: [
+      "Let us begin by meeting the brilliant mind behind this axiom.",
+      "Euclid of Alexandria was a Greek mathematician who lived around 300 BCE.",
+      "He is universally celebrated as the Father of Geometry.",
+      "Euclid worked at the legendary Library of Alexandria — one of the greatest centers of learning in the ancient world.",
+      "His masterpiece, a thirteen-volume work called The Elements, is one of the most influential textbooks in human history.",
+      "For over two thousand three hundred years, this book served as the primary textbook for teaching mathematics.",
+      "Even today, the structure Euclid established continues to influence how mathematics is taught around the globe."
+    ],
+
+    2: [
+      "Now, let us understand what an axiom actually is.",
+      "An axiom is a statement that is accepted as true without requiring any proof.",
+      "Think of it as a self-evident truth — so basic it cannot be broken down into anything simpler.",
+      "Axioms serve as the very foundation upon which all other mathematical truths are built.",
+      "Euclid identified five common notions and five postulates as the foundation for all of geometry.",
+      "Every theorem and proof in The Elements traces back to these foundational axioms.",
+      "You start with simple, undeniable truths, and through careful reasoning, build increasingly powerful conclusions."
+    ],
+
+    3: [
+      "And now, we arrive at the heart of our presentation: Euclid's First Axiom.",
+      "The axiom states: Things which are equal to the same thing are also equal to one another.",
+      "Imagine you have three objects: A, B, and C.",
+      "If object A is equal to object C, and object B is also equal to object C —",
+      "then according to Euclid's First Axiom, A and B must be equal to each other.",
+      "In modern mathematics, we call this the Transitive Property of Equality.",
+      "It may sound simple — but this single principle forms the backbone of all logical reasoning in mathematics."
+    ],
+
+    4: null,
+
+    5: [
+      "Why does this axiom matter?",
+      "First, it is the foundation of mathematical proofs — nearly every proof relies on this principle.",
+      "Second, it is the Transitive Property of Equality, used across all branches of mathematics.",
+      "Third, after over two thousand years, it remains essential in computer science, physics, and engineering.",
+      "Fourth, it teaches us to think logically and build complex truths from simple foundations."
+    ],
+
+    6: []
+  };
+
+  // ── Voice engine state
+  var preferredVoice = null;
+  var voicesLoaded   = false;
+  var _aborted       = false;
+  var _sentences     = [];   // array of sentences (one utterance each)
+  var _sentIdx       = 0;
+  var _activeUtt     = null;
+  var _watchdog      = null;
+  var _keepAlive     = null; // Chrome pause-bug heartbeat
+
+  // ── Split narration array or string into clean sentences
+  function _makeSentences(narration) {
+    if (!narration) return [];
+    // Already an array of sentences
+    if (Array.isArray(narration)) {
+      return narration.map(function(s){ return s.trim(); }).filter(function(s){ return s.length > 0; });
+    }
+    // Legacy string fallback — split on . ! ?
+    return narration.trim()
+      .split(/(?<=[.!?])\s+/)
+      .map(function(s){ return s.trim(); })
+      .filter(function(s){ return s.length > 0; });
+  }
+
+  // ── Speak one sentence; chain to next on completion
+  function _fireSentence() {
+    if (_aborted || _sentIdx >= _sentences.length) {
+      _voiceDone();
+      return;
+    }
+
+    var text = _sentences[_sentIdx];
+    _sentIdx++;
+
+    // Update subtitle with current sentence
+    if (typeof showSubtitle === 'function') showSubtitle(text);
+
+    var utt = new SpeechSynthesisUtterance(text);
+    _activeUtt = utt;
+    if (preferredVoice) utt.voice = preferredVoice;
+    utt.rate   = 1.05;
+    utt.pitch  = 1.0;
+    utt.volume = 1.0;
+
+    var started = Date.now();
+
+    utt.onstart = function() {
+      // Reset keepalive timer each sentence
+      _resetKeepAlive();
+    };
+
+    utt.onend = function() {
+      if (_aborted) return;
+      _activeUtt = null;
+      clearTimeout(_watchdog);
+      // Minimal pause between sentences — just enough for natural breath
+      setTimeout(_fireSentence, 30);
+    };
+
+    utt.onerror = function(e) {
+      if (_aborted) return;
+      if (e.error === 'interrupted' || e.error === 'canceled') return;
+      console.warn('[Voice] utterance error:', e.error, '— skipping sentence');
+      _activeUtt = null;
+      clearTimeout(_watchdog);
+      setTimeout(_fireSentence, 30);
+    };
+
+    // DO NOT call cancel() between sentences — it breaks Chrome's pipeline.
+    // Only call cancel() at the very start of a new slide narration.
+    window.speechSynthesis.speak(utt);
+
+    // Watchdog: chars / 13 chars-per-sec / rate + 0.8s grace
+    var expectedMs = Math.max(800, (text.length / 13) * 1000 / 1.05) + 800;
+    clearTimeout(_watchdog);
+    _watchdog = setTimeout(function() {
+      if (_aborted || !_activeUtt) return;
+      console.warn('[Voice] Watchdog fired — forcing next sentence');
+      window.speechSynthesis.cancel();
+      _activeUtt = null;
+      setTimeout(_fireSentence, 30);
+    }, expectedMs);
+  }
+
+  // ── Chrome keepalive: resume every 12s without pause gap
+  function _resetKeepAlive() {
+    clearInterval(_keepAlive);
+    _keepAlive = setInterval(function() {
+      if (_aborted || isVoiceMuted) { clearInterval(_keepAlive); return; }
+      // Use resume() only — never pause() as it causes audible gaps
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume();
+      }
+    }, 12000);
+  }
+
+  function _voiceDone() {
+    clearTimeout(_watchdog);
+    clearInterval(_keepAlive);
+    _activeUtt = null;
+    if (typeof updateVoiceIndicator === 'function') updateVoiceIndicator(false);
+    if (typeof hideSubtitle === 'function') setTimeout(hideSubtitle, 2000);
+  }
+
+  function _abortQueue() {
+    _aborted = true;
+    clearTimeout(_watchdog);
+    clearInterval(_keepAlive);
+    window.speechSynthesis.cancel();
+    _activeUtt = null;
+    _sentences = [];
+    _sentIdx   = 0;
+  }
+
+  // ── Public API used by experiment slide ──
+  // Speaks a single sentence exactly like the main engine does,
+  // then calls cb() when done. Shares voice, watchdog, keepalive.
+  window.voiceEngine = {
+    speakOne: function(text, cb) {
+      if (!window.speechSynthesis) { if (cb) setTimeout(cb, 600); return; }
+      if (isVoiceMuted) { if (cb) setTimeout(cb, 0); return; }
+
+      // Show subtitle
+      if (typeof showSubtitle === 'function') showSubtitle(text);
+      // Also show in exp-subtitle
+      var expSub = document.getElementById('exp-subtitle');
+      if (expSub) {
+        expSub.style.transition = 'opacity 0.25s';
+        expSub.style.opacity = '0';
+        setTimeout(function() {
+          expSub.textContent = text;
+          expSub.style.opacity = '1';
+        }, 150);
+      }
+
+      var utt = new SpeechSynthesisUtterance(text);
+      if (preferredVoice) utt.voice = preferredVoice;
+      utt.rate   = 1.05;
+      utt.pitch  = 1.0;
+      utt.volume = 1.0;
+
+      var done = false;
+      function finish() {
+        if (done) return;
+        done = true;
+        clearTimeout(wd);
+        clearInterval(ka);
+        if (cb) setTimeout(cb, 30);
+      }
+
+      utt.onstart = function() {
+        clearInterval(ka);
+        ka = setInterval(function() {
+          if (done) { clearInterval(ka); return; }
+          if (window.speechSynthesis.paused) window.speechSynthesis.resume();
+        }, 12000);
+      };
+
+      utt.onend   = finish;
+      utt.onerror = function(e) {
+        if (e.error === 'interrupted' || e.error === 'canceled') return;
+        finish();
+      };
+
+      // Watchdog
+      var expectedMs = Math.max(800, (text.length / 13) * 1000 / 1.05) + 800;
+      var wd = setTimeout(function() {
+        window.speechSynthesis.cancel();
+        finish();
+      }, expectedMs);
+
+      var ka = null;
+      window.speechSynthesis.speak(utt);
+    },
+    stop: function() {
+      _abortQueue();
+      var expSub = document.getElementById('exp-subtitle');
+      if (expSub) expSub.style.opacity = '0';
+      if (typeof hideSubtitle === 'function') hideSubtitle();
+    },
+    isMuted: function() { return isVoiceMuted; }
+  };
+
+  // ── Voice selection — pick the best English voice available
+  function loadPreferredVoice() {
+    var voices = window.speechSynthesis.getVoices();
+    if (!voices || voices.length === 0) return;
+    voicesLoaded = true;
+
+    var priority = [
+      'Google UK English Male', 'Google UK English Female',
+      'Google US English', 'Microsoft David', 'Microsoft Mark',
+      'Microsoft Guy', 'Microsoft Zira', 'Daniel', 'Samantha',
+      'Alex', 'Karen', 'Moira', 'Tessa', 'Rishi'
+    ];
+    for (var p = 0; p < priority.length; p++) {
+      for (var v = 0; v < voices.length; v++) {
+        if (voices[v].name.indexOf(priority[p]) !== -1) {
+          preferredVoice = voices[v];
+          console.log('%c[Voice] ✅ Selected: ' + preferredVoice.name, 'color:#4ade80;font-weight:bold;');
+          return;
+        }
+      }
+    }
+    // Fallback: first English voice
+    for (var k = 0; k < voices.length; k++) {
+      if (voices[k].lang && voices[k].lang.indexOf('en') === 0) {
+        preferredVoice = voices[k];
+        console.log('%c[Voice] Fallback: ' + preferredVoice.name, 'color:#f0d078;');
+        return;
+      }
+    }
+    // Last resort
+    preferredVoice = voices[0];
+    console.log('%c[Voice] Default: ' + preferredVoice.name, 'color:#f0d078;');
+  }
+
+  // Load voices — Chrome loads them async
+  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+    window.speechSynthesis.onvoiceschanged = loadPreferredVoice;
+  }
+  loadPreferredVoice();
+  var _vpoll = 0;
+  var _vpollTimer = setInterval(function() {
+    if (voicesLoaded || _vpoll++ > 25) { clearInterval(_vpollTimer); return; }
+    loadPreferredVoice();
+  }, 150);
+
+  // ── Public: stop all voice
+  function stopVoiceOver() {
+    _abortQueue();
+    if (typeof hideSubtitle === 'function') hideSubtitle();
+    if (typeof updateVoiceIndicator === 'function') updateVoiceIndicator(false);
+  }
+
+  // ── Subtitle elements
+  var subtitleBar  = document.getElementById('subtitle-bar');
+  var subtitleText = document.getElementById('subtitle-text');
+
+  function showSubtitle(text) {
+    if (!subtitleText) return;
+    subtitleText.textContent = text;
+    subtitleText.classList.add('visible');
+  }
+  function hideSubtitle() {
+    if (!subtitleText) return;
+    subtitleText.classList.remove('visible');
+  }
+  function clearSubtitleAnimation() {}
+
+  // ── Voice indicator
+  var voiceIndicator = document.getElementById('voice-indicator');
+  var voiceStatus    = document.getElementById('voice-status');
+  var isVoiceMuted   = false;
+
+  function updateVoiceIndicator(speaking) {
+    if (!voiceIndicator) return;
+    if (isVoiceMuted) {
+      voiceIndicator.classList.remove('speaking');
+      voiceIndicator.classList.add('muted');
+      if (voiceStatus) voiceStatus.textContent = 'Muted';
+    } else if (speaking) {
+      voiceIndicator.classList.add('speaking');
+      voiceIndicator.classList.remove('muted');
+      if (voiceStatus) voiceStatus.textContent = 'Speaking...';
+    } else {
+      voiceIndicator.classList.remove('speaking', 'muted');
+      if (voiceStatus) voiceStatus.textContent = 'Voice';
+    }
+  }
+
+  voiceIndicator.addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleVoiceMute();
+  });
+
+  function toggleVoiceMute() {
+    isVoiceMuted = !isVoiceMuted;
+    if (isVoiceMuted) {
+      stopVoiceOver();
+      hideSubtitle();
+    } else {
+      speakSlideNarration(currentSlide);
+    }
+    updateVoiceIndicator(!isVoiceMuted && _sentences.length > 0);
+  }
+
+  // ── MAIN: speak a slide's narration
+  function speakSlideNarration(slideNum) {
+    if (typeof hideSubtitle === 'function') hideSubtitle();
+    if (isVoiceMuted) return;
+
+    var narration = slideNarrations[slideNum];
+    var sentences = _makeSentences(narration);
+
+    if (!sentences || sentences.length === 0) {
+      if (typeof updateVoiceIndicator === 'function') updateVoiceIndicator(false);
+      return;
+    }
+
+    // Hard-stop anything currently playing, then clear Chrome's queue
+    _abortQueue();
+    window.speechSynthesis.cancel();
+
+    var startDelay = voicesLoaded ? 280 : 750;
+    setTimeout(function() {
+      if (!voicesLoaded) loadPreferredVoice();
+      _aborted   = false;
+      _sentences = sentences;
+      _sentIdx   = 0;
+      console.log('%c[Voice] ▶ Slide ' + slideNum + ' — ' + _sentences.length + ' sentences', 'color:#4ade80;font-weight:bold;');
+      if (typeof updateVoiceIndicator === 'function') updateVoiceIndicator(true);
+      _fireSentence();
+    }, startDelay);
+  }
+
+  console.log('%c[Voice] System ready — chunked sentence-by-sentence playback active', 'color:#d4a843;font-weight:bold;');
+  console.log('%c[Voice] Z = mute/unmute  |  S = play video  |  E = edit scripts', 'color:#f0d078;');
+
+  // Initialize video indicator on page load
+  updateVideoIndicator();
+
+  // Extract YouTube embed ID from various URL formats
+  function extractYouTubeId(url) {
+    url = url.trim();
+    var match;
+    match = url.match(/youtu\.be\/([A-Za-z0-9_-]{11})/);
+    if (match) return match[1];
+    match = url.match(/[?&]v=([A-Za-z0-9_-]{11})/);
+    if (match) return match[1];
+    match = url.match(/\/embed\/([A-Za-z0-9_-]{11})/);
+    if (match) return match[1];
+    match = url.match(/\/shorts\/([A-Za-z0-9_-]{11})/);
+    if (match) return match[1];
+    if (/^[A-Za-z0-9_-]{11}$/.test(url)) return url;
+    return null;
+  }
+
+  // Ctrl+Z handler: Add video to a slide
+  function handleAddVideo() {
+    // Step 1: Choose platform
+    var choice = prompt('Choose video platform:\n\n  1 = YouTube\n  2 = Self-hosted MP4\n\nType 1 or 2:');
+    if (!choice) {
+      return;
+    }
+
+    var platform = choice.trim();
+    var source = null;
+
+    if (platform === '1') {
+      var ytUrl = prompt('Paste YouTube URL or video ID:\n\n(e.g. https://www.youtube.com/watch?v=dQw4w9WgXcQ\n or youtu.be/dQw4w9WgXcQ\n or just the 11-char ID)');
+      if (!ytUrl) {
+        return;
+      }
+      var ytId = extractYouTubeId(ytUrl);
+      if (!ytId) {
+        alert('Could not extract a valid YouTube video ID.\nPlease try again.');
+        return;
+      }
+      source = {
+        type: 'youtube',
+        url: 'https://www.youtube.com/embed/' + ytId + '?autoplay=1&fs=1&rel=0&modestbranding=1'
+      };
+
+    } else if (platform === '2') {
+      var mp4url = prompt('Paste direct .mp4 URL or local file path:\n\n(e.g. https://example.com/video.mp4\n or file:///C:/Users/you/video.mp4)\n\nNote: Local files may have CORS restrictions.');
+      if (!mp4url) {
+        return;
+      }
+      source = {
+        type: 'mp4',
+        url: mp4url.trim()
+      };
+
+    } else {
+      alert('Invalid choice. Please type 1 or 2.');
+      return;
+    }
+
+    // Step 2: Ask which slide to assign this video to
+    var maxSlide = TOTAL_SLIDES - 1;
+    var listLines = [];
+    for (var s = 0; s < TOTAL_SLIDES; s++) {
+      var status = videoAssignments[s] ? '  ✅ VIDEO SET' : '';
+      listLines.push('  ' + s + ' — ' + slideLabels[s] + status);
+    }
+
+    var slideChoice = prompt(
+      'Enter slide number to attach this video to:\n\n' +
+      listLines.join('\n') +
+      '\n\n(0 = title slide, max = ' + maxSlide + '):'
+    );
+    if (slideChoice === null || slideChoice === '') {
+      return;
+    }
+
+    var slideNum = parseInt(slideChoice.trim(), 10);
+
+    // Validate
+    if (isNaN(slideNum) || slideNum < 0 || slideNum >= TOTAL_SLIDES) {
+      alert('Invalid slide number.\nPlease enter a number between 0 and ' + maxSlide + '.');
+      return;
+    }
+
+    if (videoAssignments[slideNum]) {
+      alert('Invalid slide number or this slide already has a video.\nOne video per slide only.\n\nSlide ' + slideNum + ' (' + slideLabels[slideNum] + ') already has a video assigned.\nReload (Esc) to reset and reassign.');
+      return;
+    }
+
+    // Assign and persist
+    videoAssignments[slideNum] = source;
+    try { localStorage.setItem('presentationVideoAssignments', JSON.stringify(videoAssignments)); } catch (e) {}
+    alert(
+      '✅ Video added to slide ' + slideNum + ' successfully!\n\n' +
+      'Slide: "' + slideLabels[slideNum] + '"\n' +
+      'Type: ' + source.type.toUpperCase() + '\n\n' +
+      'Use Ctrl+V on that slide to play.\n' +
+      '(Or it will auto-play when you navigate to it.)'
+    );
+  }
+
+  // Ctrl+V handler: Play video for current slide
+  function handlePlayVideo() {
+    var source = videoAssignments[currentSlide];
+
+    if (!source) {
+      // Show a sleek toast instead of alert
+      showToast('No video on this slide — press Ctrl+Z to add one');
+      return;
+    }
+
+    // Stop voice-over and audio to prevent overlap
+    stopVoiceOver();
+    stopCurrentAudio();
+
+    videoContainer.innerHTML = '';
+
+    if (source.type === 'youtube') {
+      var iframe = document.createElement('iframe');
+      iframe.src = source.url;
+      iframe.allow = 'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen';
+      iframe.allowFullscreen = true;
+      iframe.setAttribute('allowfullscreen', '');
+      iframe.style.width = '100%';
+      iframe.style.height = '100%';
+      iframe.style.border = 'none';
+      iframe.style.borderRadius = '10px';
+      videoContainer.appendChild(iframe);
+    } else {
+      var video = document.createElement('video');
+      video.src = source.url;
+      video.autoplay = true;
+      video.controls = true;
+      video.playsInline = true;
+      video.style.width = '100%';
+      video.style.height = '100%';
+      video.style.background = '#000';
+      video.style.borderRadius = '10px';
+      video.onerror = function() {
+        showToast('Video failed to load — check the URL');
+      };
+      videoContainer.appendChild(video);
+    }
+
+    // Show overlay with fade-in
+    videoOverlay.style.opacity = '0';
+    videoOverlay.classList.add('visible');
+    videoOverlayOpen = true;
+    requestAnimationFrame(function() {
+      videoOverlay.style.transition = 'opacity 0.35s ease';
+      videoOverlay.style.opacity = '1';
+    });
+
+    // Attempt fullscreen
+    setTimeout(function() {
+      try {
+        var target = videoOverlay;
+        if (target.requestFullscreen) target.requestFullscreen();
+        else if (target.webkitRequestFullscreen) target.webkitRequestFullscreen();
+        else if (target.mozRequestFullScreen) target.mozRequestFullScreen();
+        else if (target.msRequestFullscreen) target.msRequestFullscreen();
+        if (fullscreenHint) fullscreenHint.textContent = 'Press S or ✕ to close';
+      } catch (err) {
+        if (fullscreenHint) fullscreenHint.textContent = 'Press S or ✕ to close';
+      }
+    }, 300);
+  }
+
+  // Ctrl+B handler: Close video overlay
+  function handleCloseVideo() {
+    if (!videoOverlayOpen) return;
+
+    var video = videoContainer.querySelector('video');
+    if (video) { video.pause(); video.src = ''; }
+    var iframe = videoContainer.querySelector('iframe');
+    if (iframe) { iframe.src = ''; }
+
+    try {
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (document.webkitFullscreenElement) document.webkitExitFullscreen();
+      else if (document.mozFullScreenElement) document.mozCancelFullScreen();
+      else if (document.msFullscreenElement) document.msExitFullscreen();
+    } catch (err) { /* ignore */ }
+
+    // Fade out smoothly
+    videoOverlay.style.transition = 'opacity 0.3s ease';
+    videoOverlay.style.opacity = '0';
+    setTimeout(function() {
+      videoOverlay.classList.remove('visible');
+      videoOverlay.style.opacity = '';
+      videoOverlay.style.transition = '';
+      videoOverlayOpen = false;
+      videoContainer.innerHTML = '';
+      if (fullscreenHint) fullscreenHint.textContent = '';
+    }, 300);
+  }
+
+  // Close button click
+  if (videoCloseBtn) {
+    videoCloseBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      handleCloseVideo();
+    });
+  }
+
+  // ── Audio Functions ──
+
+  function stopCurrentAudio() {
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio = null;
+      currentAudioSlide = -1;
+    }
+  }
+
+  function handleAddAudio() {
+    var audioUrl = prompt('Paste the MP3 / audio URL:\n\n(e.g. https://example.com/audio.mp3\n or a direct link to any audio file)');
+    if (!audioUrl || !audioUrl.trim()) {
+      return;
+    }
+
+    var maxSlide = TOTAL_SLIDES - 1;
+    var listLines = [];
+    for (var s = 0; s < TOTAL_SLIDES; s++) {
+      var vStatus = videoAssignments[s] ? ' 🎥' : '';
+      var aStatus = audioAssignments[s] ? ' 🎵' : '';
+      listLines.push('  ' + s + ' — ' + slideLabels[s] + vStatus + aStatus);
+    }
+
+    var slideChoice = prompt(
+      'Enter slide number to attach this audio to:\n\n' +
+      listLines.join('\n') +
+      '\n\n(🎥 = has video, 🎵 = has audio)\n(0 = title slide, max = ' + maxSlide + '):'
+    );
+    if (slideChoice === null || slideChoice === '') {
+      return;
+    }
+
+    var slideNum = parseInt(slideChoice.trim(), 10);
+
+    if (isNaN(slideNum) || slideNum < 0 || slideNum >= TOTAL_SLIDES) {
+      alert('Invalid slide number.\nPlease enter a number between 0 and ' + maxSlide + '.');
+      return;
+    }
+
+    if (audioAssignments[slideNum]) {
+      alert('This slide already has audio assigned.\nOne audio per slide only.\n\nSlide ' + slideNum + ' (' + slideLabels[slideNum] + ') already has audio.\nReload (Esc) to reset and reassign.');
+      return;
+    }
+
+    audioAssignments[slideNum] = { url: audioUrl.trim() };
+    try { localStorage.setItem('presentationAudioAssignments', JSON.stringify(audioAssignments)); } catch (e) {}
+    alert(
+      '✅ Audio added to slide ' + slideNum + ' successfully!\n\n' +
+      'Slide: "' + slideLabels[slideNum] + '"\n\n' +
+      'Use Ctrl+S on that slide to play/stop.'
+    );
+  }
+
+  function handleToggleAudio() {
+    // If audio is currently playing on this slide, stop it
+    if (currentAudio && currentAudioSlide === currentSlide) {
+      stopCurrentAudio();
+      return;
+    }
+
+    // If audio is playing on a different slide, stop it first
+    stopCurrentAudio();
+
+    var assignment = audioAssignments[currentSlide];
+    if (!assignment) {
+      alert('No audio assigned to this slide.\nUse the ⚙ button or Ctrl+A to add one first.');
+      return;
+    }
+
+    currentAudio = new Audio(assignment.url);
+    currentAudioSlide = currentSlide;
+    currentAudio.play().catch(function(err) {
+      alert('Audio failed to play.\nCheck that the URL is correct and accessible.');
+      currentAudio = null;
+      currentAudioSlide = -1;
+    });
+    currentAudio.addEventListener('ended', function() {
+      currentAudio = null;
+      currentAudioSlide = -1;
+    });
+  }
+
+  // Subtle media button on slide 0 — opens a menu for video or audio
+  var videoLoadBtn = document.getElementById('videoLoadBtn');
+  if (videoLoadBtn) {
+    videoLoadBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      e.preventDefault();
+      var choice = prompt('Media Settings:\n\n  1 = Add Video to a slide\n  2 = Add Audio to a slide\n\nType 1 or 2:');
+      if (!choice) return;
+      var c = choice.trim();
+      if (c === '1') {
+        handleAddVideo();
+      } else if (c === '2') {
+        handleAddAudio();
+      } else {
+        alert('Invalid choice. Please type 1 or 2.');
+      }
+    });
+  }
+
+  // Prevent overlay clicks from advancing slides
+  if (videoOverlay) {
+    videoOverlay.addEventListener('click', function(e) {
+      e.stopPropagation();
+    });
+  }
+
+  /* ══════════════════════════════════════════════
+     Event Listeners
+     ══════════════════════════════════════════════ */
+
+  // Keyboard handler
+  document.addEventListener('keydown', function(e) {
+    var key = e.key.toLowerCase();
+    var isCtrl = e.ctrlKey || e.metaKey;
+
+    // ── Ctrl+Z: Add video to a slide ──
+    if (isCtrl && key === 'z') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddVideo();
+      return;
+    }
+
+    // ── Ctrl+V: Play video on current slide ──
+    if (isCtrl && key === 'v') {
+      e.preventDefault();
+      e.stopPropagation();
+      handlePlayVideo();
+      return;
+    }
+
+    // ── Ctrl+B: Close video overlay ──
+    if (isCtrl && key === 'b') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleCloseVideo();
+      return;
+    }
+
+    // ── Ctrl+A: Add audio to a slide ──
+    if (isCtrl && key === 'a') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleAddAudio();
+      return;
+    }
+
+    // ── Ctrl+S: Play/Stop audio on current slide ──
+    if (isCtrl && key === 's') {
+      e.preventDefault();
+      e.stopPropagation();
+      handleToggleAudio();
+      return;
+    }
+
+    // Ignore all other Ctrl/Meta combos
+    if (isCtrl) return;
+
+    // ── 'Z' key: Toggle voice mute (works even when video is open) ──
+    if (key === 'z') {
+      e.preventDefault();
+      toggleVoiceMute();
+      return;
+    }
+
+    // ── 'S' key: Toggle video — play if closed, close if open ──
+    if (key === 's') {
+      e.preventDefault();
+      e.stopPropagation();
+      if (videoOverlayOpen) {
+        handleCloseVideo();
+      } else {
+        handlePlayVideo();
+      }
+      return;
+    }
+
+    // Don't navigate slides if video overlay is open
+    if (videoOverlayOpen) return;
+
+    // ── Normal slide navigation ──
+    if (key === ' ' || key === 'arrowright' || key === 'enter') {
+      e.preventDefault();
+      transitionToNext();
+    } else if (key === 'escape') {
+      location.reload();
+    }
+  });
+
+  // Mouse click to advance
+  document.addEventListener('click', function(e) {
+    if (videoOverlayOpen) return;
+    if (e.button === 0) transitionToNext();
+  });
+
+  // Touch to advance
+  document.addEventListener('touchend', function(e) {
+    if (videoOverlayOpen) return;
+    transitionToNext();
+  }, { passive: true });
+
+  // Handle fullscreen exit
+  document.addEventListener('fullscreenchange', function() {
+    if (!document.fullscreenElement && videoOverlayOpen) {
+      // Fullscreen exited but overlay still visible
+    }
+  });
+
+  // Auto-play title slide narration after first user interaction
+  var hasPlayedInitialNarration = false;
+  
+  function playInitialNarration() {
+    if (hasPlayedInitialNarration) return;
+    hasPlayedInitialNarration = true;
+    
+    // Small delay to ensure voices are loaded
+    setTimeout(function() {
+      if (currentSlide === 0) {
+        speakSlideNarration(0);
+      }
+    }, 500);
+  }
+  
+  // Play narration on first click (required by browsers for speech)
+  document.addEventListener('click', function initNarration() {
+    playInitialNarration();
+    document.removeEventListener('click', initNarration);
+  }, { once: true });
+  
+  // Also try on keypress
+  document.addEventListener('keydown', function initNarrationKey(e) {
+    if (e.key === ' ' || e.key === 'Enter') {
+      playInitialNarration();
+      document.removeEventListener('keydown', initNarrationKey);
+    }
+  });
+
+  /* ══════════════════════════════════════════════
+     Script Editor
+  ══════════════════════════════════════════════ */
+
+  var scriptEditor = document.getElementById('script-editor');
+  var editorTabs = document.getElementById('editorTabs');
+  var editorSlideLabel = document.getElementById('editorSlideLabel');
+  var editorBadge = document.getElementById('editorBadge');
+  var editorTextarea = document.getElementById('editorTextarea');
+  var editorCharCount = document.getElementById('editorCharCount');
+  var editorPreviewBar = document.getElementById('editorPreviewBar');
+  var previewDot = document.getElementById('previewDot');
+  var previewBarText = document.getElementById('previewBarText');
+  var editorSaveBtn = document.getElementById('editorSaveBtn');
+  var editorPreviewBtn = document.getElementById('editorPreviewBtn');
+  var editorStopBtn = document.getElementById('editorStopBtn');
+  var editorClearBtn = document.getElementById('editorClearBtn');
+  var editorCloseBtn = document.getElementById('editorCloseBtn');
+
+  var editorOpen = false;
+  var editorActiveSlide = 0;
+  var previewUtterance = null;
+  var isPreviewing = false;
+
+  // No-voice slides (experiment=4, title=0, thankyou=6)
+  var noVoiceSlides = { 0: true, 4: true, 6: true };
+
+  // Load custom scripts from localStorage
+  var customScripts = {};
+  try {
+    var saved = localStorage.getItem('presentationCustomScripts');
+    if (saved) {
+      customScripts = JSON.parse(saved);
+      // Merge into slideNarrations
+      for (var sk in customScripts) {
+        if (customScripts.hasOwnProperty(sk)) {
+          slideNarrations[parseInt(sk, 10)] = customScripts[sk];
+        }
+      }
+      console.log('%c[Script Editor] Loaded custom scripts from localStorage', 'color: #4ade80;');
+    }
+  } catch(e) { customScripts = {}; }
+
+  function saveCustomScripts() {
+    try {
+      localStorage.setItem('presentationCustomScripts', JSON.stringify(customScripts));
+    } catch(e) {}
+  }
+
+  function buildEditorTabs() {
+    editorTabs.innerHTML = '';
+    for (var i = 0; i < TOTAL_SLIDES; i++) {
+      var tab = document.createElement('button');
+      tab.className = 'editor-tab';
+      tab.textContent = 'Slide ' + i;
+      tab.dataset.slide = i;
+
+      if (noVoiceSlides[i]) {
+        tab.classList.add('no-voice');
+        tab.title = slideLabels[i] + ' — No voice-over';
+      } else if (slideNarrations[i] && slideNarrations[i].trim()) {
+        tab.classList.add('has-script');
+        tab.title = slideLabels[i] + ' — Has script';
+      } else {
+        tab.title = slideLabels[i] + ' — Empty';
+      }
+
+      if (i === editorActiveSlide) tab.classList.add('active');
+
+      (function(idx) {
+        tab.addEventListener('click', function() {
+          stopEditorPreview();
+          editorActiveSlide = idx;
+          refreshEditorContent();
+          buildEditorTabs();
+        });
+      })(i);
+
+      editorTabs.appendChild(tab);
+    }
+  }
+
+  function refreshEditorContent() {
+    var sl = editorActiveSlide;
+    var label = slideLabels[sl];
+    var isNoVoice = noVoiceSlides[sl];
+
+    editorSlideLabel.innerHTML = 'Slide ' + sl + ' &mdash; ' + label +
+      ' <span class="editor-badge" id="editorBadge">' +
+      (sl === currentSlide ? 'CURRENT' : 'SLIDE ' + sl) + '</span>';
+
+    if (isNoVoice) {
+      editorTextarea.value = '';
+      editorTextarea.disabled = true;
+      editorTextarea.placeholder = 'This slide has no voice-over (Experiment / Title / Thank You).';
+      editorPreviewBtn.disabled = true;
+      editorSaveBtn.disabled = true;
+      editorCharCount.textContent = 'No voice-over for this slide';
+      previewBarText.textContent = 'This slide intentionally has no voice-over';
+    } else {
+      editorTextarea.disabled = false;
+      editorPreviewBtn.disabled = false;
+      editorSaveBtn.disabled = false;
+      editorTextarea.placeholder = 'Type the voice-over script for this slide…\n\nLeave empty for no voice-over on this slide.';
+      var current = slideNarrations[sl] || '';
+      editorTextarea.value = current;
+      updateCharCount();
+      previewBarText.textContent = current.trim()
+        ? 'Click ▶ Preview Voice to hear this script'
+        : 'No script set — type one below';
+    }
+  }
+
+  function updateCharCount() {
+    var txt = editorTextarea.value;
+    var chars = txt.length;
+    var words = txt.trim() ? txt.trim().split(/\s+/).length : 0;
+    var secs = Math.round(words / 2.8); // avg speaking rate
+    var mins = Math.floor(secs / 60);
+    var remSecs = secs % 60;
+    var timeStr = mins > 0 ? mins + 'm ' + remSecs + 's' : '~' + secs + 's';
+    editorCharCount.textContent = chars + ' characters · ' + words + ' words · ' + timeStr;
+  }
+
+  function stopEditorPreview() {
+    if (speechSynthesis.speaking) speechSynthesis.cancel();
+    previewDot.style.display = 'none';
+    isPreviewing = false;
+    previewBarText.textContent = editorTextarea.value.trim()
+      ? 'Click ▶ Preview Voice to hear this script'
+      : 'No script set — type one below';
+  }
+
+  function openEditor() {
+    if (editorOpen) return;
+    editorOpen = true;
+    editorActiveSlide = currentSlide;
+    scriptEditor.classList.add('open');
+    buildEditorTabs();
+    refreshEditorContent();
+    setTimeout(function() { editorTextarea.focus(); }, 100);
+    stopVoiceOver();
+    console.log('%c[Script Editor] Opened', 'color: #d4a843;');
+  }
+
+  function closeEditor() {
+    if (!editorOpen) return;
+    editorOpen = false;
+    stopEditorPreview();
+    scriptEditor.classList.remove('open');
+    console.log('%c[Script Editor] Closed', 'color: #d4a843;');
+  }
+
+  // Save button
+  editorSaveBtn.addEventListener('click', function() {
+    var sl = editorActiveSlide;
+    var newText = editorTextarea.value.trim();
+    slideNarrations[sl] = newText;
+    customScripts[sl] = newText;
+    saveCustomScripts();
+    buildEditorTabs();
+
+    // Visual feedback
+    editorSaveBtn.textContent = '✅ Saved!';
+    editorSaveBtn.style.background = 'linear-gradient(135deg, #1a6b3a, #2ecc71)';
+    setTimeout(function() {
+      editorSaveBtn.textContent = '💾 Save Script';
+      editorSaveBtn.style.background = '';
+    }, 1500);
+
+    previewBarText.textContent = newText ? 'Script saved! Click ▶ to preview.' : 'No script — slide will be silent.';
+    showToast('✅ Script saved for slide ' + sl + ' — "' + slideLabels[sl] + '"');
+    console.log('%c[Script Editor] Saved script for slide ' + sl, 'color: #4ade80; font-weight:bold;');
+  });
+
+  // Preview button
+  editorPreviewBtn.addEventListener('click', function() {
+    var text = editorTextarea.value.trim();
+    if (!text) {
+      previewBarText.textContent = 'Nothing to preview — type a script first!';
+      return;
+    }
+    stopEditorPreview();
+    isPreviewing = true;
+    previewDot.style.display = 'block';
+    previewBarText.textContent = 'Previewing…';
+
+    var utt = new SpeechSynthesisUtterance(text);
+    if (preferredVoice) utt.voice = preferredVoice;
+    utt.rate = 1.05;
+    utt.pitch = 1.0;
+    utt.volume = 1.0;
+    utt.onend = function() {
+      previewDot.style.display = 'none';
+      isPreviewing = false;
+      previewBarText.textContent = 'Preview finished';
+    };
+    utt.onerror = function() {
+      previewDot.style.display = 'none';
+      isPreviewing = false;
+      previewBarText.textContent = 'Preview failed';
+    };
+    speechSynthesis.speak(utt);
+  });
+
+  // Stop button
+  editorStopBtn.addEventListener('click', stopEditorPreview);
+
+  // Clear button
+  editorClearBtn.addEventListener('click', function() {
+    editorTextarea.value = '';
+    updateCharCount();
+    stopEditorPreview();
+    previewBarText.textContent = 'Script cleared — type a new one below';
+    editorTextarea.focus();
+  });
+
+  // Close button
+  editorCloseBtn.addEventListener('click', closeEditor);
+
+  // Live char count
+  editorTextarea.addEventListener('input', updateCharCount);
+
+  // Click on backdrop to close
+  scriptEditor.addEventListener('click', function(e) {
+    if (e.target === scriptEditor) closeEditor();
+  });
+
+  // Stop clicks inside panel from bubbling to slide navigation
+  scriptEditor.querySelector('.editor-panel').addEventListener('click', function(e) {
+    e.stopPropagation();
+  });
+
+  // 'E' key to open/close editor
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey || e.metaKey)) return;
+    if (e.key.toLowerCase() === 'e') {
+      e.preventDefault();
+      if (editorOpen) {
+        closeEditor();
+      } else {
+        openEditor();
+      }
+    }
+    if (e.key === 'Escape' && editorOpen) {
+      e.preventDefault();
+      closeEditor();
+    }
+  }, true); // use capture so it fires before the slide navigation listener
+
+})();
+</script>
+
+<!-- ============================================================
+     EXPERIMENT ENGINE — Euclid's Axiom 1 · Triangle Areas Demo
+     Auto-playing, synchronized voice-over + canvas animation
+     ============================================================ -->
+<script>
+/* ════════════════════════════════════════════════════════════
+   EXPERIMENT: Euclid's First Axiom — Triangle Areas
+   Auto-playing animation + synchronized Web Speech API
+   ════════════════════════════════════════════════════════════ */
+
+/* ── Global state ── */
+var EXP = {
+  running : false,
+  done    : false,
+  timers  : [],   // all setTimeout/rAF ids for clean reset
+  rafId   : null
+};
+
+/* ── Canvas ── */
+var EC, CTX, EW, EH;
+
+/* ── Triangle descriptors ── */
+/* Each triangle: { x, y, w, h, alpha, baseColor, glowColor, label, areaAlpha, verified } */
+var TA, TB, TC;
+
+/* ── Equal-sign state ── */
+var EQ_AB = { alpha: 0, glow: 0 };  // between A and B
+var EQ_BC = { alpha: 0, glow: 0 };  // between B and C
+var EQ_AC = { alpha: 0, glow: 0, big: false }; // final
+
+/* ── Text overlays ── */
+var OVERLAY = { line1: '', line1a: 0, line2: '', line2a: 0, proved: false, provedA: 0 };
+
+/* ── Star field ── */
+var EXP_STARS = [];
+
+/* ── Colors ── */
+var C_RED   = '#e05555';
+var C_BLUE  = '#4a90d9';
+var C_GOLD  = '#d4a843';
+var C_GREEN = '#50e890';
+var C_WHITE = '#f0ead8';
+
+/* ════════════════════════════════════════════════════════════
+   CANVAS + STAR INIT
+   ════════════════════════════════════════════════════════════ */
+function initExpCanvas() {
+  EC  = document.getElementById('exp-canvas');
+  if (!EC) return;
+  EW = Math.min(window.innerWidth * 0.92, 860);
+  EH = Math.min(window.innerHeight * 0.52, 400);
+  EC.width  = EW;
+  EC.height = EH;
+  EC.style.width  = EW + 'px';
+  EC.style.height = EH + 'px';
+  CTX = EC.getContext('2d');
+  initExpStars();
+  experimentReset();
+  /* Auto-play after a brief settle */
+  EXP.timers.push(setTimeout(runExperiment, 900));
+}
+
+/* ════════════════════════════════════════════════════════════
+   STAR FIELD for background canvas
+   ════════════════════════════════════════════════════════════ */
+var EXP_STAR_LIST = [];
+var EXP_STAR_RAF  = null;
+
+function initExpStars() {
+  var sc = document.getElementById('star-canvas');
+  if (!sc) return;
+  sc.width  = sc.offsetWidth  || window.innerWidth;
+  sc.height = sc.offsetHeight || window.innerHeight;
+  var ctx = sc.getContext('2d');
+  EXP_STAR_LIST = [];
+  for (var i = 0; i < 180; i++) {
+    EXP_STAR_LIST.push({
+      x:     Math.random() * sc.width,
+      y:     Math.random() * sc.height,
+      r:     Math.random() * 1.5 + 0.2,
+      base:  Math.random() * 0.7 + 0.15,
+      speed: Math.random() * 0.8 + 0.3,
+      phase: Math.random() * Math.PI * 2,
+      gold:  Math.random() > 0.78
+    });
+  }
+  if (EXP_STAR_RAF) cancelAnimationFrame(EXP_STAR_RAF);
+  (function loop() {
+    var now = Date.now() * 0.001;
+    ctx.clearRect(0, 0, sc.width, sc.height);
+    EXP_STAR_LIST.forEach(function(s) {
+      var a = s.base * (0.5 + 0.5 * Math.sin(now * s.speed + s.phase));
+      ctx.beginPath();
+      ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+      ctx.fillStyle = s.gold
+        ? 'rgba(212,168,67,' + a.toFixed(2) + ')'
+        : 'rgba(200,215,255,' + a.toFixed(2) + ')';
+      ctx.fill();
+    });
+    EXP_STAR_RAF = requestAnimationFrame(loop);
+  })();
+}
+
+/* ════════════════════════════════════════════════════════════
+   ANIMATION STATE
+   ════════════════════════════════════════════════════════════ */
+var EXP_TIMERS = [];   // setTimeout ids
+var EXP_RUNNING = false;
+var EXP_DONE    = false;
+
+function expDelay(fn, ms) {
+  var id = setTimeout(fn, ms);
+  EXP_TIMERS.push(id);
+  return id;
+}
+
+/* Ease functions */
+function expEaseOut(t)    { return 1 - Math.pow(1 - t, 3); }
+function expEaseInOut(t)  { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2,3)/2; }
+
+/* Animate 0→1 over ms, call draw(t) per frame, call done() when finished */
+function expAnimate(ms, draw, done) {
+  var start = null;
+  var raf;
+  function step(ts) {
+    if (!start) start = ts;
+    var t = Math.min(1, (ts - start) / ms);
+    draw(expEaseOut(t));
+    if (t < 1) {
+      raf = requestAnimationFrame(step);
+      EXP_TIMERS.push(raf);
+    } else {
+      if (done) done();
+    }
+  }
+  raf = requestAnimationFrame(step);
+  EXP_TIMERS.push(raf);
+}
+
+/* ════════════════════════════════════════════════════════════
+   VOICE — delegates to the main voice engine (same narrator)
+   ════════════════════════════════════════════════════════════ */
+
+/* expSpeak: delegates entirely to window.voiceEngine.speakOne —
+   exact same voice, watchdog, keepalive as every other slide. */
+function expSpeak(text, rate, cb) {
+  if (window.voiceEngine) {
+    window.voiceEngine.speakOne(text, cb);
+  } else {
+    /* voiceEngine not ready yet — tiny retry */
+    setTimeout(function() { expSpeak(text, rate, cb); }, 100);
+  }
+}
+
+/* expChain: speak text, wait `gap` ms after speech ends, then call next */
+function expChain(text, next, gap) {
+  expSpeak(text, 1.05, function() {
+    expDelay(next, gap !== undefined ? gap : 30);
+  });
+}
+
+function expClearSubtitle() {
+  var sub = document.getElementById('exp-subtitle');
+  if (sub) { sub.style.opacity = '0'; }
+  if (window.voiceEngine) window.voiceEngine.stop();
+}
+
+/* ════════════════════════════════════════════════════════════
+   TRIANGLE GEOMETRY — three isoceles triangles
+   Left (A·red), Centre (B·blue), Right (C·gold)
+   All have identical base (proving equal area for same base+height)
+   ════════════════════════════════════════════════════════════ */
+var TR = {}; /* populated in buildTR() */
+
+function buildTR() {
+  var cx   = [EW * 0.18, EW * 0.50, EW * 0.82];
+  var base = EW * 0.175;
+  var by   = EH * 0.76;   /* baseline y */
+  /* Heights differ so the triangles look visually distinct,
+     but base × height are tuned so area = 12 cm² symbolically */
+  var heights = [EH * 0.42, EH * 0.30, EH * 0.52];
+
+  ['A','B','C'].forEach(function(id, i) {
+    TR[id] = {
+      id    : id,
+      cx    : cx[i],
+      by    : by,
+      base  : base,
+      h     : heights[i],
+      /* 3 vertices */
+      p0    : { x: cx[i] - base/2, y: by },
+      p1    : { x: cx[i] + base/2, y: by },
+      p2    : { x: cx[i],          y: by - heights[i] },
+      /* Style */
+      stroke: id === 'A' ? '#e05555' : id === 'B' ? '#4a90d9' : '#d4a843',
+      fill  : id === 'A' ? 'rgba(224,85,85,0.12)'
+                         : id === 'B' ? 'rgba(74,144,217,0.12)'
+                         : 'rgba(212,168,67,0.12)',
+      glow  : id === 'A' ? 'rgba(224,85,85,0.6)'
+                         : id === 'B' ? 'rgba(74,144,217,0.6)'
+                         : 'rgba(212,168,67,0.6)',
+      alpha : 0,          /* 0=hidden, 1=fully visible */
+      glowAmt: 0,
+      baseGlow: 0,        /* green base-line glow amount */
+      baseGlowColor: '#50e890',
+      areaAlpha: 0,       /* opacity of "Area = 12 cm²" label */
+      verified: false     /* turns base green */
+    };
+  });
+}
+
+/* ════════════════════════════════════════════════════════════
+   RENDER ENGINE — single master draw per frame
+   ════════════════════════════════════════════════════════════ */
+var RS = {
+  /* equal signs */
+  eqAB: 0, eqBC: 0, eqAC: 0, eqACbig: false,
+  /* conclusion overlay */
+  conclLine1: '', conclLine1A: 0,
+  conclLine2: '', conclLine2A: 0,
+  proved: false,  provedA: 0,
+  /* ruler */
+  ruler: null   /* { x1,x2,y,prog,color,label,labelA } */
+};
+
+function expDraw() {
+  if (!CTX) return;
+  CTX.clearRect(0, 0, EW, EH);
+
+  /* soft radial bg */
+  var bg = CTX.createRadialGradient(EW/2, EH*0.55, 0, EW/2, EH*0.45, EW*0.8);
+  bg.addColorStop(0, 'rgba(12,18,50,0.72)');
+  bg.addColorStop(1, 'rgba(5,7,22,0.0)');
+  CTX.fillStyle = bg;
+  CTX.fillRect(0, 0, EW, EH);
+
+  /* triangles */
+  ['A','B','C'].forEach(function(id) { drawExpTri(TR[id]); });
+
+  /* equal signs between triangles */
+  drawExpEq(TR.A.cx, TR.B.cx, TR.A.by - TR.A.h * 0.4, RS.eqAB, false);
+  drawExpEq(TR.B.cx, TR.C.cx, TR.B.by - TR.B.h * 0.4, RS.eqBC, false);
+  if (RS.eqAC > 0)
+    drawExpEq(TR.A.cx, TR.C.cx, Math.min(TR.A.p2.y, TR.C.p2.y) - EH*0.07, RS.eqAC, RS.eqACbig);
+
+  /* ruler */
+  if (RS.ruler) drawExpRuler(RS.ruler);
+
+  /* conclusion text */
+  if (RS.conclLine1A > 0) drawExpText(RS.conclLine1, EW/2, EH*0.1, RS.conclLine1A, '#f0d078', EW*0.022);
+  if (RS.conclLine2A > 0) drawExpText(RS.conclLine2, EW/2, EH*0.18, RS.conclLine2A, '#ffe066', EW*0.022);
+  if (RS.provedA   > 0)  drawExpText('✓  Euclid\'s First Axiom Proven', EW/2, EH*0.26, RS.provedA, '#50e890', EW*0.02);
+}
+
+function drawExpTri(t) {
+  if (t.alpha <= 0) return;
+  CTX.save();
+  CTX.globalAlpha = t.alpha;
+
+  /* glow */
+  if (t.glowAmt > 0) {
+    CTX.shadowColor = t.glow;
+    CTX.shadowBlur  = t.glowAmt * 28;
+  }
+
+  /* fill */
+  CTX.beginPath();
+  CTX.moveTo(t.p0.x, t.p0.y);
+  CTX.lineTo(t.p1.x, t.p1.y);
+  CTX.lineTo(t.p2.x, t.p2.y);
+  CTX.closePath();
+  CTX.fillStyle = t.fill;
+  CTX.fill();
+
+  /* stroke */
+  CTX.strokeStyle = t.stroke;
+  CTX.lineWidth   = 2.4;
+  CTX.stroke();
+
+  /* verified green base */
+  if (t.baseGlow > 0) {
+    CTX.shadowColor = t.baseGlowColor;
+    CTX.shadowBlur  = 22 * t.baseGlow;
+    CTX.strokeStyle = t.baseGlowColor;
+    CTX.lineWidth   = 4.5;
+    CTX.lineCap     = 'round';
+    CTX.globalAlpha = t.alpha * t.baseGlow;
+    CTX.beginPath();
+    CTX.moveTo(t.p0.x, t.p0.y);
+    CTX.lineTo(t.p1.x, t.p1.y);
+    CTX.stroke();
+    CTX.globalAlpha = t.alpha;
+    CTX.lineCap     = 'butt';
+    CTX.shadowBlur  = t.glowAmt * 28;
+    CTX.shadowColor = t.glow;
+    CTX.lineWidth   = 2.4;
+    CTX.strokeStyle = t.stroke;
+  }
+
+  CTX.shadowBlur = 0;
+
+  /* label */
+  var fs = Math.round(EW * 0.028);
+  CTX.font      = 'bold ' + fs + 'px Playfair Display, serif';
+  CTX.textAlign = 'center';
+  CTX.fillStyle = t.stroke;
+  CTX.shadowColor = t.glow;
+  CTX.shadowBlur  = 12;
+  CTX.fillText(t.id, t.cx, t.p2.y - EH * 0.045);
+
+  /* area label */
+  if (t.areaAlpha > 0) {
+    CTX.globalAlpha = t.alpha * t.areaAlpha;
+    CTX.shadowBlur  = 14;
+    CTX.shadowColor = t.glow;
+    var afs = Math.round(EW * 0.019);
+    CTX.font      = afs + 'px Inter, sans-serif';
+    CTX.fillStyle = '#fff8e8';
+    CTX.fillText('Area = 12 cm²', t.cx, t.by + EH * 0.075);
+  }
+
+  CTX.restore();
+}
+
+function drawExpEq(x1, x2, y, alpha, big) {
+  if (alpha <= 0) return;
+  CTX.save();
+  CTX.globalAlpha = alpha;
+  var mx  = (x1 + x2) / 2;
+  var fs  = big ? Math.round(EW * 0.055) : Math.round(EW * 0.032);
+  CTX.font      = 'bold ' + fs + 'px Inter, sans-serif';
+  CTX.textAlign = 'center';
+  CTX.fillStyle = big ? '#ffe066' : '#d4a843';
+  CTX.shadowColor = big ? 'rgba(255,220,80,0.9)' : 'rgba(212,168,67,0.7)';
+  CTX.shadowBlur  = big ? 32 : 18;
+  CTX.fillText('=', mx, y);
+  CTX.restore();
+}
+
+function drawExpRuler(r) {
+  if (!r || r.prog <= 0) return;
+  CTX.save();
+  var ex   = r.x1 + (r.x2 - r.x1) * r.prog;
+  var tickH = EH * 0.032;
+  CTX.strokeStyle = r.color;
+  CTX.lineWidth   = 2.2;
+  CTX.shadowColor = r.color;
+  CTX.shadowBlur  = 14;
+  CTX.lineCap     = 'round';
+
+  /* line */
+  CTX.beginPath();
+  CTX.moveTo(r.x1, r.y);
+  CTX.lineTo(ex,   r.y);
+  CTX.stroke();
+
+  /* left tick */
+  CTX.beginPath();
+  CTX.moveTo(r.x1, r.y - tickH);
+  CTX.lineTo(r.x1, r.y + tickH);
+  CTX.stroke();
+
+  /* right tick */
+  if (r.prog > 0.9) {
+    CTX.globalAlpha = (r.prog - 0.9) / 0.1;
+    CTX.beginPath();
+    CTX.moveTo(r.x2, r.y - tickH);
+    CTX.lineTo(r.x2, r.y + tickH);
+    CTX.stroke();
+    CTX.globalAlpha = 1;
+  }
+
+  /* label */
+  if (r.label && r.prog > 0.65) {
+    var la  = Math.min(1, (r.prog - 0.65) / 0.25);
+    var lx  = (r.x1 + r.x2) / 2;
+    var ly  = r.y - EH * 0.07;
+    CTX.globalAlpha = la;
+    CTX.font        = 'bold ' + Math.round(EW*0.019) + 'px Inter, sans-serif';
+    CTX.textAlign   = 'center';
+    CTX.fillStyle   = '#fffbe8';
+    CTX.shadowBlur  = 18;
+    CTX.fillText(r.label, lx, ly);
+  }
+  CTX.restore();
+}
+
+function drawExpText(text, x, y, alpha, color, fs) {
+  if (alpha <= 0 || !text) return;
+  CTX.save();
+  CTX.globalAlpha = alpha;
+  CTX.font        = 'italic bold ' + Math.round(fs || EW*0.022) + 'px Playfair Display, serif';
+  CTX.textAlign   = 'center';
+  CTX.fillStyle   = color || '#f0d078';
+  CTX.shadowColor = color || '#f0d078';
+  CTX.shadowBlur  = 22;
+  CTX.fillText(text, x, y);
+  CTX.restore();
+}
+
+/* ════════════════════════════════════════════════════════════
+   ANIMATION SEQUENCE
+   ════════════════════════════════════════════════════════════ */
+function runExperiment() {
+  if (EXP_RUNNING && !EXP_DONE) return;
+  EXP_RUNNING = true;
+  EXP_DONE    = false;
+
+  /* Stop the main voice engine so both don't fight over speechSynthesis */
+  if (window.voiceEngine) window.voiceEngine.stop();
+  else if (typeof stopVoiceOver === 'function') stopVoiceOver();
+
+  /* Reset render state */
+  buildTR();
+  RS.eqAB = 0; RS.eqBC = 0; RS.eqAC = 0; RS.eqACbig = false;
+  RS.conclLine1 = ''; RS.conclLine1A = 0;
+  RS.conclLine2 = ''; RS.conclLine2A = 0;
+  RS.proved = false;  RS.provedA = 0;
+  RS.ruler  = null;
+
+  /* continuous render loop */
+  var looping = true;
+  (function loop() {
+    expDraw();
+    if (looping) requestAnimationFrame(loop);
+  })();
+
+  /* helper: animate a single numeric property on an object */
+  function animProp(obj, prop, from, to, ms, done) {
+    var s = null;
+    (function step(ts) {
+      if (!s) s = ts;
+      var tt = Math.min(1, (ts - s) / ms);
+      obj[prop] = from + (to - from) * expEaseOut(tt);
+      if (tt < 1) requestAnimationFrame(step);
+      else { obj[prop] = to; if (done) done(); }
+    })(performance.now());
+  }
+
+  /* ── STEP 1: Triangle A appears ── */
+  function s1() {
+    expChain('Here is Triangle A with an area of 12 square centimetres.', s2, 400);
+    animProp(TR.A, 'alpha',   0, 1,   900);
+    animProp(TR.A, 'glowAmt', 0, 0.8, 900);
+    expDelay(function() { animProp(TR.A, 'areaAlpha', 0, 1, 600); }, 700);
+  }
+
+  /* ── STEP 2: Triangle B appears, A=B eq sign ── */
+  function s2() {
+    expChain('Here is Triangle B. It also has an area of 12 square centimetres.', s3, 300);
+    animProp(TR.B, 'alpha',   0, 1,   900);
+    animProp(TR.B, 'glowAmt', 0, 0.8, 900);
+    expDelay(function() { animProp(TR.B, 'areaAlpha', 0, 1, 600); }, 700);
+    expDelay(function() { animProp(RS, 'eqAB', 0, 1, 700); }, 1100);
+  }
+
+  /* ── STEP 3: Confirm A = B, show green bases ── */
+  function s3() {
+    expChain('So, the area of A is equal to the area of B.', s4, 400);
+    animProp(TR.A, 'baseGlow', 0, 1, 700);
+    animProp(TR.B, 'baseGlow', 0, 1, 700);
+  }
+
+  /* ── STEP 4: Triangle A fades out ── */
+  function s4() {
+    expChain('Now, Triangle A disappears.', s5, 350);
+    animProp(TR.A, 'alpha',    1, 0,   900);
+    animProp(TR.A, 'glowAmt',  0.8, 0, 900);
+    animProp(TR.A, 'baseGlow', 1, 0,   500);
+    animProp(RS, 'eqAB', 1, 0, 600);
+  }
+
+  /* ── STEP 5: Triangle C appears, B=C eq sign ── */
+  function s5() {
+    expChain('Here is Triangle C. Its area is also 12 square centimetres.', s6, 300);
+    animProp(TR.C, 'alpha',   0, 1,   900);
+    animProp(TR.C, 'glowAmt', 0, 0.8, 900);
+    expDelay(function() { animProp(TR.C, 'areaAlpha', 0, 1, 600); }, 700);
+    expDelay(function() { animProp(RS, 'eqBC', 0, 1, 700); }, 1100);
+  }
+
+  /* ── STEP 6: B = C green ── */
+  function s6() {
+    expChain('So the area of B is equal to the area of C.', s7, 400);
+    animProp(TR.B, 'baseGlow', 0, 1, 700);
+    animProp(TR.C, 'baseGlow', 0, 1, 700);
+  }
+
+  /* ── STEP 7: Triangle B fades out ── */
+  function s7() {
+    expChain('Now, Triangle B disappears.', s8, 350);
+    animProp(TR.B, 'alpha',    1, 0,   900);
+    animProp(TR.B, 'glowAmt',  0.8, 0, 900);
+    animProp(TR.B, 'baseGlow', 1, 0,   500);
+    animProp(TR.C, 'baseGlow', 1, 0,   500);
+    animProp(RS, 'eqBC', 1, 0, 600);
+  }
+
+  /* ── STEP 8: A reappears ── */
+  function s8() {
+    expChain('Even though we never compared A and C directly...', s9, 300);
+    animProp(TR.A, 'alpha',     0, 1,   900);
+    animProp(TR.A, 'glowAmt',   0, 0.9, 900);
+    animProp(TR.A, 'areaAlpha', 0, 1,   800);
+    TR.A.baseGlow = 0;
+  }
+
+  /* ── STEP 9: A = C conclusion ── */
+  function s9() {
+    expChain('Since A equals B and B equals C, then A must equal C.', s10, 400);
+    /* big glowing A=C sign */
+    expDelay(function() { animProp(RS, 'eqAC', 0, 1, 800); RS.eqACbig = true; }, 400);
+    /* green bases on A and C */
+    expDelay(function() {
+      animProp(TR.A, 'baseGlow', 0, 1, 700);
+      animProp(TR.C, 'baseGlow', 0, 1, 700);
+    }, 900);
+    /* conclusion lines */
+    expDelay(function() {
+      RS.conclLine1 = 'A = B   and   B = C';
+      animProp(RS, 'conclLine1A', 0, 1, 700);
+    }, 1400);
+    expDelay(function() {
+      RS.conclLine2 = 'Therefore  A = C';
+      animProp(RS, 'conclLine2A', 0, 1, 700);
+    }, 2200);
+  }
+
+  /* ── STEP 10: Final proof text ── */
+  function s10() {
+    expChain(
+      'This proves Euclid\'s First Axiom: Things which are equal to the same thing are also equal to one another.',
+      function() {
+        EXP_DONE = true;
+        looping  = false;
+        expClearSubtitle();
+        /* one last draw so canvas stays visible */
+        setTimeout(expDraw, 100);
+      },
+      600
+    );
+    expDelay(function() {
+      RS.proved = true;
+      animProp(RS, 'provedA', 0, 1, 1000);
+    }, 600);
+    /* pulse glow on A and C */
+    var dir = 1, gv = 0.9;
+    var piv = setInterval(function() {
+      gv += dir * 0.025;
+      if (gv > 1)   { gv = 1;   dir = -1; }
+      if (gv < 0.4) { gv = 0.4; dir =  1; }
+      TR.A.glowAmt = gv;
+      TR.C.glowAmt = gv;
+    }, 28);
+    EXP_TIMERS.push(piv);
+    expDelay(function() { clearInterval(piv); TR.A.glowAmt = 1; TR.C.glowAmt = 1; }, 5000);
+  }
+
+  /* kick off */
+  s1();
+}
+
+/* ════════════════════════════════════════════════════════════
+   RESET / PUBLIC
+   ════════════════════════════════════════════════════════════ */
+function experimentReset() {
+  EXP_TIMERS.forEach(function(id) { clearTimeout(id); clearInterval(id); cancelAnimationFrame(id); });
+  EXP_TIMERS  = [];
+  EXP_RUNNING = false;
+  EXP_DONE    = false;
+  if (window.voiceEngine) window.voiceEngine.stop();
+  else if (typeof stopVoiceOver === 'function') stopVoiceOver();
+  expClearSubtitle();
+  if (CTX) {
+    buildTR();
+    RS.eqAB = 0; RS.eqBC = 0; RS.eqAC = 0; RS.eqACbig = false;
+    RS.conclLine1 = ''; RS.conclLine1A = 0;
+    RS.conclLine2 = ''; RS.conclLine2A = 0;
+    RS.proved = false;  RS.provedA = 0;
+    RS.ruler  = null;
+    expDraw();
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
+   SLIDE-4 WATCHER — init + auto-play when slide becomes active
+   ════════════════════════════════════════════════════════════ */
+(function() {
+  var slide4 = document.getElementById('slide-4');
+  if (!slide4) return;
+
+  var obs = new MutationObserver(function(muts) {
+    muts.forEach(function(m) {
+      if (m.target.id !== 'slide-4') return;
+      if (m.target.classList.contains('active')) {
+        setTimeout(function() {
+          initExpCanvas();         /* sizes canvas + starts stars */
+          /* auto-play after canvas settles */
+          EXP_TIMERS.push(setTimeout(runExperiment, 700));
+        }, 250);
+      } else {
+        experimentReset();
+        if (EXP_STAR_RAF) { cancelAnimationFrame(EXP_STAR_RAF); EXP_STAR_RAF = null; }
+      }
+    });
+  });
+  obs.observe(slide4, { attributes: true, attributeFilter: ['class'] });
+
+  /* already active on load? */
+  if (slide4.classList.contains('active')) {
+    setTimeout(function() { initExpCanvas(); EXP_TIMERS.push(setTimeout(runExperiment, 700)); }, 300);
+  }
+
+  /* resize */
+  window.addEventListener('resize', function() {
+    if (slide4.classList.contains('active')) {
+      experimentReset();
+      initExpCanvas();
+      EXP_TIMERS.push(setTimeout(runExperiment, 500));
+    }
+  });
+})();
+
+/* Voice pre-load handled by main engine's voiceEngine API */
+</script>
+
+</body>
+</html>
